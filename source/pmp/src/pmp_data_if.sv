@@ -6,6 +6,8 @@
 // Original Author: Coralie Allioux - Robert Bosch France SAS
 //-----------------------------------------------------------------------------
 
+`include "ariane_pkg.sv"
+
 module pmp_data_if
   import ariane_pkg::*;
 #(
