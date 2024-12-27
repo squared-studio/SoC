@@ -11,6 +11,7 @@
 // Description: Wrapper for the Core-V High-Performance L1 data cache (CV-HPDcache)
 
 `include "hpdcache_typedef.svh"
+`include "hwpf_stride_pkg.sv"
 
 module cva6_hpdcache_wrapper
 //  Parameters

@@ -9,6 +9,9 @@
 // Authors: Cesar Fuguet
 // Date: February, 2023
 // Description: Interface adapter for the CVA6 core
+`include "hpdcache_pkg.sv"
+
+
 module cva6_hpdcache_if_adapter
 //  Parameters
 //  {{{

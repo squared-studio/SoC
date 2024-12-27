@@ -1,3 +1,5 @@
+`ifndef RISCV_PKG_SV___
+`define RISCV_PKG_SV___ hgytl
 /* Copyright 2018 ETH Zurich and University of Bologna.
  * Copyright and related rights are licensed under the Solderpad Hardware
  * License, Version 0.51 (the “License”); you may not use this file except in
@@ -14,6 +16,9 @@
  *
  * Description: Common RISC-V definitions.
  */
+
+`include "cv32a6_imac_sv32_config_pkg.sv"
+// `include "cv32a6_ima_sv32_fpga_config_pkg.sv.sv"
 
 package riscv;
 
@@ -1002,3 +1007,5 @@ package riscv;
   // pragma translate_on
 
 endpackage
+
+`endif

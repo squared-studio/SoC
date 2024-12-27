@@ -1,3 +1,5 @@
+`ifndef CVA6_CONFIG_PKG_SV___
+`define CVA6_CONFIG_PKG_SV___ hgytl
 // Copyright 2021 Thales DIS design services SAS
 //
 // Licensed under the Solderpad Hardware Licence, Version 2.0 (the "License");
@@ -152,3 +154,5 @@ package cva6_config_pkg;
   };
 
 endpackage
+
+`endif

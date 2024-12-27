@@ -18,6 +18,7 @@
  *
  */
 
+`include "axi_pkg.sv"
 
 module axi_shim #(
     parameter config_pkg::cva6_cfg_t CVA6Cfg = config_pkg::cva6_cfg_empty,

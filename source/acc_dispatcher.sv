@@ -13,6 +13,10 @@
 // Date: 20.11.2020
 // Description: Functional unit that dispatches CVA6 instructions to accelerators.
 
+`include "ariane_pkg.sv"
+`include "cf_math_pkg.sv"
+`include "fpnew_pkg.sv"
+
 module acc_dispatcher
   import ariane_pkg::*;
   import riscv::*;
@@ -106,7 +110,7 @@ module acc_dispatcher
     input acc_resp_t acc_resp_i
 );
 
-  `include "common_cells/registers.svh"
+  `include "registers.svh"
 
   import cf_math_pkg::idx_width;
 

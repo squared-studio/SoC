@@ -1,3 +1,6 @@
+`ifndef STD_CACHE_PKG_SV___
+`define STD_CACHE_PKG_SV___ hgytl
+
 // Copyright 2018 ETH Zurich and University of Bologna.
 // Copyright and related rights are licensed under the Solderpad Hardware
 // License, Version 0.51 (the "License"); you may not use this file except in
@@ -58,3 +61,4 @@ package std_cache_pkg;
 
 endpackage : std_cache_pkg
 
+`endif

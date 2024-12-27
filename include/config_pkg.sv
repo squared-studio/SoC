@@ -1,3 +1,5 @@
+`ifndef CONFIG_PKG_SV___
+`define CONFIG_PKG_SV___ hgytl
 // Copyright 2023 Thales DIS France SAS
 //
 // Licensed under the Solderpad Hardware Licence, Version 2.0 (the "License");
@@ -420,3 +422,5 @@ package config_pkg;
   endfunction : is_inside_cacheable_regions
 
 endpackage
+
+`endif

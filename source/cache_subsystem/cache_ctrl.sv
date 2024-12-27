@@ -16,7 +16,7 @@
 // All rights reserved.
 //
 // Description: Cache controller
-
+`include "std_cache_pkg.sv"
 
 module cache_ctrl
   import ariane_pkg::*;

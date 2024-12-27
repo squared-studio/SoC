@@ -11,6 +11,7 @@
 // Description: AXI arbiter for the CVA6 cache subsystem integrating standard
 //              CVA6's instruction cache and the Core-V High-Performance
 //              L1 Dcache (CV-HPDcache).
+`include "wt_cache_pkg.sv"
 
 module cva6_hpdcache_subsystem_axi_arbiter
 //  Parameters
