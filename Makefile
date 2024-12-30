@@ -11,12 +11,27 @@ XVLOG_DEFS += -d CFG_$(TARGET_CFG)
 XVLOG_DEFS += -d XSIM
 XVLOG_DEFS += -d VERILATOR
 
+INCDR += -i ${CVA6_REPO_DIR}/core/
+INCDR += -i ${CVA6_REPO_DIR}/core/cva6_mmu/
+INCDR += -i ${CVA6_REPO_DIR}/core/pmp/src/
+INCDR += -i ${CVA6_REPO_DIR}/core/cache_subsystem/
 INCDR += -i ${CVA6_REPO_DIR}/core/include/
-INCDR += -i ${CVA6_REPO_DIR}/vendor/pulp-platform/common_cells/include/
-INCDR += -i ${CVA6_REPO_DIR}/vendor/pulp-platform/common_cells/src/
-INCDR += -i ${CVA6_REPO_DIR}/vendor/pulp-platform/axi/include/
+INCDR += -i ${CVA6_REPO_DIR}/core/frontend/
+INCDR += -i ${CVA6_REPO_DIR}/core/cvfpu/src/
+INCDR += -i ${CVA6_REPO_DIR}/core/cvfpu/src/fpu_div_sqrt_mvp/hdl/
 INCDR += -i ${CVA6_REPO_DIR}/common/local/util/
-INCDR += -i ${HPDCACHE_DIR}/rtl/include
+INCDR += -i ${HPDCACHE_DIR}/rtl/include/
+INCDR += -i ${HPDCACHE_DIR}/rtl/src/
+INCDR += -i ${HPDCACHE_DIR}/rtl/src/utils/
+INCDR += -i ${HPDCACHE_DIR}/rtl/src/common/
+INCDR += -i ${HPDCACHE_DIR}/rtl/src/hwpf_stride/
+INCDR += -i ${HPDCACHE_DIR}/rtl/src/common/macros/behav/
+INCDR += -i ${CVA6_REPO_DIR}/vendor/pulp-platform/common_cells/include/
+INCDR += -i ${CVA6_REPO_DIR}/vendor/pulp-platform/axi/include/
+INCDR += -i ${CVA6_REPO_DIR}/vendor/pulp-platform/common_cells/src/
+INCDR += -i ${CVA6_REPO_DIR}/vendor/pulp-platform/axi/src/
+INCDR += -i ${CVA6_REPO_DIR}/vendor/pulp-platform/fpga-support/rtl/
+INCDR += -i ${CVA6_REPO_DIR}/vendor/pulp-platform/tech_cells_generic/src/rtl/
 
 FLIST += ${CVA6_REPO_DIR}/vendor/pulp-platform/fpga-support/rtl/SyncDpRam.sv
 FLIST += ${CVA6_REPO_DIR}/vendor/pulp-platform/fpga-support/rtl/AsyncDpRam.sv
@@ -228,7 +243,7 @@ xvlog: build submodules/cva6/core/Flist.cva6
 .PHONY: xelab
 xelab:
 	@echo -e "\033[3;35mElaborating cva6...\033[0m"
-	@cd build; xelab -debug typical $(TOP) --nolog
+	@cd build; xelab -debug wave $(TOP) --nolog
 	@echo -e "\033[3;35mElaborated cva6\033[0m"
 
 .PHONY: compile
