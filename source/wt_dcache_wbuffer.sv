@@ -104,7 +104,8 @@ module wt_dcache_wbuffer
     output logic [(CVA6Cfg.XLEN/8)-1:0] wr_data_be_o,
     output logic [CVA6Cfg.DCACHE_USER_WIDTH-1:0] wr_user_o,
     // to forwarding logic and miss unit
-    output wbuffer_t [CVA6Cfg.WtDcacheWbufDepth-1:0] wbuffer_data_o,
+    // output wbuffer_t [CVA6Cfg.WtDcacheWbufDepth-1:0] wbuffer_data_o,
+    output wbuffer_t wbuffer_data_o [CVA6Cfg.WtDcacheWbufDepth],
     output logic [CVA6Cfg.DCACHE_MAX_TX-1:0][CVA6Cfg.PLEN-1:0]     tx_paddr_o,      // used to check for address collisions with read operations
     output logic [CVA6Cfg.DCACHE_MAX_TX-1:0] tx_vld_o
 );
@@ -166,8 +167,12 @@ module wt_dcache_wbuffer
     logic [$clog2(CVA6Cfg.WtDcacheWbufDepth)-1:0] ptr;
   } tx_stat_t;
 
-  tx_stat_t [CVA6Cfg.DCACHE_MAX_TX-1:0] tx_stat_d, tx_stat_q;
-  wbuffer_t [CVA6Cfg.WtDcacheWbufDepth-1:0] wbuffer_d, wbuffer_q;
+  // tx_stat_t [CVA6Cfg.DCACHE_MAX_TX-1:0] tx_stat_d, tx_stat_q;
+  tx_stat_t tx_stat_d [CVA6Cfg.DCACHE_MAX_TX];
+  tx_stat_t tx_stat_q [CVA6Cfg.DCACHE_MAX_TX];
+  // wbuffer_t [CVA6Cfg.WtDcacheWbufDepth-1:0] wbuffer_d, wbuffer_q;
+  wbuffer_t wbuffer_d [CVA6Cfg.WtDcacheWbufDepth];
+  wbuffer_t wbuffer_q [CVA6Cfg.WtDcacheWbufDepth];
   logic [CVA6Cfg.WtDcacheWbufDepth-1:0] valid;
   logic [CVA6Cfg.WtDcacheWbufDepth-1:0] dirty;
   logic [CVA6Cfg.WtDcacheWbufDepth-1:0] tocheck;
@@ -226,7 +231,10 @@ module wt_dcache_wbuffer
 
   assign miss_we_o = 1'b1;
   assign miss_vld_bits_o = '0;
-  assign wbuffer_data_o = wbuffer_q;
+  // assign wbuffer_data_o = wbuffer_q;
+  foreach (wbuffer_q[i]) begin
+    assign wbuffer_data_o[i] = wbuffer_q[i];
+  end
 
   for (genvar k = 0; k < CVA6Cfg.DCACHE_MAX_TX; k++) begin : gen_tx_vld
     assign tx_vld_o[k] = tx_stat_q[k].vld;
@@ -319,7 +327,10 @@ module wt_dcache_wbuffer
   );
 
   always_comb begin : p_tx_stat
-    tx_stat_d = tx_stat_q;
+    // tx_stat_d = tx_stat_q;
+    foreach (tx_stat_q[i]) begin
+      tx_stat_d[i] = tx_stat_q[i];
+    end
     evict     = 1'b0;
     wr_req_o  = '0;
 
@@ -515,7 +526,10 @@ module wt_dcache_wbuffer
 
   // TODO: rewrite and separate into MUXES and write strobe logic
   always_comb begin : p_buffer
-    wbuffer_d           = wbuffer_q;
+    // wbuffer_d           = wbuffer_q;
+    foreach (wbuffer_q[i]) begin
+      wbuffer_d[i] = wbuffer_q[i];
+    end
     ni_pending_d        = ni_pending_q;
     dirty_rd_en         = 1'b0;
     req_port_o.data_gnt = 1'b0;
@@ -610,8 +624,14 @@ module wt_dcache_wbuffer
 
   always_ff @(posedge clk_i or negedge rst_ni) begin : p_regs
     if (!rst_ni) begin
-      wbuffer_q    <= '{default: '0};
-      tx_stat_q    <= '{default: '0};
+      // wbuffer_q    <= '{default: '0};
+      foreach (wbuffer_q[i]) begin
+        wbuffer_q[i] <= '{default: '0};
+      end
+      // tx_stat_q    <= '{default: '0};
+      foreach (tx_stat_q[i]) begin
+        tx_stat_q[i] <= '{default: '0};
+      end
       ni_pending_q <= '0;
       check_ptr_q  <= '0;
       check_ptr_q1 <= '0;
@@ -622,8 +642,14 @@ module wt_dcache_wbuffer
       wr_cl_vld_q  <= '0;
       wr_cl_idx_q  <= '0;
     end else begin
-      wbuffer_q    <= wbuffer_d;
-      tx_stat_q    <= tx_stat_d;
+      // wbuffer_q    <= wbuffer_d;
+      foreach (wbuffer_d[i]) begin
+        wbuffer_q[i] <= wbuffer_d[i];
+      end
+      // tx_stat_q    <= tx_stat_d;
+      foreach (tx_stat_d[i]) begin
+        tx_stat_q[i] <= tx_stat_d[i];
+      end
       ni_pending_q <= ni_pending_d;
       check_ptr_q  <= check_ptr_d;
       check_ptr_q1 <= check_ptr_q;

@@ -73,7 +73,8 @@ module wt_dcache_mem
     input logic [(CVA6Cfg.XLEN/8)-1:0] wr_data_be_i,
 
     // forwarded wbuffer
-    input wbuffer_t [CVA6Cfg.WtDcacheWbufDepth-1:0] wbuffer_data_i
+    // input wbuffer_t [CVA6Cfg.WtDcacheWbufDepth-1:0] wbuffer_data_i
+    input wbuffer_t wbuffer_data_i [CVA6Cfg.WtDcacheWbufDepth]
 );
 
   localparam DCACHE_NUM_BANKS = CVA6Cfg.DCACHE_LINE_WIDTH / CVA6Cfg.XLEN;

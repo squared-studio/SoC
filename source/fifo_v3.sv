@@ -44,7 +44,9 @@ module fifo_v3 #(
     // this integer will be truncated by the synthesis tool
     logic [ADDR_DEPTH:0] status_cnt_n, status_cnt_q;
     // actual memory
-    dtype [FifoDepth - 1:0] mem_n, mem_q;
+    // dtype [FifoDepth - 1:0] mem_n, mem_q;
+    dtype mem_n [FifoDepth];
+    dtype mem_q [FifoDepth];
 
     assign usage_o = status_cnt_q[ADDR_DEPTH-1:0];
 
@@ -64,7 +66,10 @@ module fifo_v3 #(
         write_pointer_n = write_pointer_q;
         status_cnt_n    = status_cnt_q;
         data_o          = (DEPTH == 0) ? data_i : mem_q[read_pointer_q];
-        mem_n           = mem_q;
+        // mem_n           = mem_q;
+        foreach (mem_q[i]) begin
+            mem_n[i] = mem_q[i];
+        end
         gate_clock      = 1'b1;
 
         // push a new element to the queue
@@ -129,9 +134,15 @@ module fifo_v3 #(
 
     always_ff @(posedge clk_i or negedge rst_ni) begin
         if(~rst_ni) begin
-            mem_q <= '0;
+            // mem_q <= '0;
+            foreach (mem_q[i]) begin
+                mem_q[i] <= '0;
+            end
         end else if (!gate_clock) begin
-            mem_q <= mem_n;
+            // mem_q <= mem_n;
+            foreach (mem_n[i]) begin
+                mem_q[i] <= mem_n[i];
+            end
         end
     end
 

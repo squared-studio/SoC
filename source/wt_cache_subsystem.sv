@@ -60,10 +60,10 @@ module wt_cache_subsystem
     input amo_req_t dcache_amo_req_i,
     output amo_resp_t dcache_amo_resp_o,
     // Request ports
-    input dcache_req_i_t [NumPorts-1:0] dcache_req_ports_i,  // to/from LSU
-    output dcache_req_o_t [NumPorts-1:0] dcache_req_ports_o,  // to/from LSU
-    // input dcache_req_i_t dcache_req_ports_i [NumPorts],  // to/from LSU
-    // output dcache_req_o_t dcache_req_ports_o [NumPorts],  // to/from LSU
+    // input dcache_req_i_t [NumPorts-1:0] dcache_req_ports_i,  // to/from LSU
+    // output dcache_req_o_t [NumPorts-1:0] dcache_req_ports_o,  // to/from LSU
+    input dcache_req_i_t dcache_req_ports_i [NumPorts],  // to/from LSU
+    output dcache_req_o_t dcache_req_ports_o [NumPorts],  // to/from LSU
     // writebuffer status
     output logic wbuffer_empty_o,
     output logic wbuffer_not_ni_o,

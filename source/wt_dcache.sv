@@ -43,10 +43,10 @@ module wt_dcache
     output amo_resp_t amo_resp_o,
 
     // Request ports
-    input  dcache_req_i_t [NumPorts-1:0] req_ports_i,
-    output dcache_req_o_t [NumPorts-1:0] req_ports_o,
-    // input  dcache_req_i_t req_ports_i[NumPorts],
-    // output dcache_req_o_t req_ports_o[NumPorts],
+    // input  dcache_req_i_t [NumPorts-1:0] req_ports_i,
+    // output dcache_req_o_t [NumPorts-1:0] req_ports_o,
+    input  dcache_req_i_t req_ports_i[NumPorts],
+    output dcache_req_o_t req_ports_o[NumPorts],
 
     output logic [NumPorts-1:0][CVA6Cfg.DCACHE_SET_ASSOC-1:0] miss_vld_bits_o,
 
@@ -124,7 +124,8 @@ module wt_dcache
   logic     [         CVA6Cfg.DCACHE_MAX_TX-1:0]                                  tx_vld;
 
   // wbuffer <-> memory
-  wbuffer_t [     CVA6Cfg.WtDcacheWbufDepth-1:0]                                  wbuffer_data;
+  // wbuffer_t [     CVA6Cfg.WtDcacheWbufDepth-1:0]                                  wbuffer_data;
+  wbuffer_t wbuffer_data [CVA6Cfg.WtDcacheWbufDepth];
 
 
   ///////////////////////////////////////////////////////
