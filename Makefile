@@ -1,5 +1,6 @@
 TOP := cva6
 
+ROOT_DIR = $(shell echo $(realpath .))
 CVA6_REPO_DIR := $(shell realpath submodules/cva6)
 HPDCACHE_DIR := $(shell realpath submodules/cva6/core/cache_subsystem/hpdcache)
 
@@ -106,7 +107,7 @@ FLIST += ${CVA6_REPO_DIR}/core/commit_stage.sv
 FLIST += ${CVA6_REPO_DIR}/core/axi_shim.sv
 FLIST += ${CVA6_REPO_DIR}/core/cva6_accel_first_pass_decoder_stub.sv
 FLIST += ${CVA6_REPO_DIR}/core/acc_dispatcher.sv
-FLIST += ${CVA6_REPO_DIR}/core/cva6_fifo_v3.sv
+FLIST += ${ROOT_DIR}/source/cva6_fifo_v3.sv 
 FLIST += ${CVA6_REPO_DIR}/core/frontend/btb.sv
 FLIST += ${CVA6_REPO_DIR}/core/frontend/bht.sv
 FLIST += ${CVA6_REPO_DIR}/core/frontend/ras.sv
