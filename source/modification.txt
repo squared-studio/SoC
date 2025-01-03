@@ -1,4 +1,0 @@
-File        |       Modification        | Log
-csr_regfile         None                  No Packed Array of Packed Struct
-perf_counters       None                  No Packed Struct
-controller          None                  No packed Struct
