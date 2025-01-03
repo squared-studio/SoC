@@ -401,7 +401,9 @@ module cva6
   // --------------
   // ID <-> ISSUE
   // --------------
-  scoreboard_entry_t [CVA6Cfg.NrIssuePorts-1:0] issue_entry_id_issue, issue_entry_id_issue_prev;
+  // scoreboard_entry_t [CVA6Cfg.NrIssuePorts-1:0] issue_entry_id_issue, issue_entry_id_issue_prev;
+  scoreboard_entry_t issue_entry_id_issue     [CVA6Cfg.NrIssuePorts];
+  scoreboard_entry_t issue_entry_id_issue_prev[CVA6Cfg.NrIssuePorts];
   logic [CVA6Cfg.NrIssuePorts-1:0][31:0] orig_instr_id_issue;
   logic [CVA6Cfg.NrIssuePorts-1:0] issue_entry_valid_id_issue;
   logic [CVA6Cfg.NrIssuePorts-1:0] is_ctrl_fow_id_issue;
@@ -502,7 +504,8 @@ module cva6
   // --------------
   // ID <-> COMMIT
   // --------------
-  scoreboard_entry_t [CVA6Cfg.NrCommitPorts-1:0] commit_instr_id_commit;
+  // scoreboard_entry_t [CVA6Cfg.NrCommitPorts-1:0] commit_instr_id_commit;
+  scoreboard_entry_t commit_instr_id_commit [CVA6Cfg.NrCommitPorts];
   logic [CVA6Cfg.NrCommitPorts-1:0] commit_drop_id_commit;
   logic [CVA6Cfg.NrCommitPorts-1:0] commit_ack_commit_id;
 
@@ -721,7 +724,8 @@ module cva6
 
   logic [CVA6Cfg.NrWbPorts-1:0][CVA6Cfg.TRANS_ID_BITS-1:0] trans_id_ex_id;
   logic [CVA6Cfg.NrWbPorts-1:0][CVA6Cfg.XLEN-1:0] wbdata_ex_id;
-  exception_t [CVA6Cfg.NrWbPorts-1:0] ex_ex_ex_id;  // exception from execute, ex_stage to id_stage
+  // exception_t [CVA6Cfg.NrWbPorts-1:0] ex_ex_ex_id;  // exception from execute, ex_stage to id_stage
+  exception_t ex_ex_ex_id[CVA6Cfg.NrWbPorts];
   logic [CVA6Cfg.NrWbPorts-1:0] wt_valid_ex_id;
 
   assign trans_id_ex_id[FLU_WB] = flu_trans_id_ex_id;
