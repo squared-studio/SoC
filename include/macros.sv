@@ -8,3 +8,13 @@
       end \
     end \
   end
+
+`define EQUAL_CONT(arr1, arr2, size) \
+for (int i = 0; i < size; i++) begin \
+  arr1[i] = arr2[i]; \
+end
+
+`define EQUAL_PROC(arr1, arr2, size) \
+for (int i = 0; i < size; i++) begin \
+  arr1[i] <= arr2[i]; \
+end

@@ -14,6 +14,8 @@
 // Date: 09.06.2018
 
 // return address stack
+`include "macros.sv"
+
 module ras #(
     parameter config_pkg::cva6_cfg_t CVA6Cfg = config_pkg::cva6_cfg_empty,
     parameter type ras_t = logic,
@@ -47,9 +49,11 @@ module ras #(
 
   always_comb begin
     // stack_d = stack_q;
-    for (int i = 0; i < DEPTH; i++) begin
-      stack_d[i] = stack_q[i];
-    end
+    // for (int i = 0; i < DEPTH; i++) begin
+    //   stack_d[i] = stack_q[i];
+    // end
+    `EQUAL_CONT(stack_d, stack_q, DEPTH)
+
 
     // push on the stack
     if (push_i) begin
