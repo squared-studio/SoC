@@ -232,7 +232,7 @@ module wt_dcache_wbuffer
   assign miss_we_o = 1'b1;
   assign miss_vld_bits_o = '0;
   // assign wbuffer_data_o = wbuffer_q;
-  foreach (wbuffer_q[i]) begin
+  for (genvar i = 0; i < CVA6Cfg.WtDcacheWbufDepth; i++) begin: gen_wbuffer_data_o
     assign wbuffer_data_o[i] = wbuffer_q[i];
   end
 
