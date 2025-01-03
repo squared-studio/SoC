@@ -618,10 +618,14 @@ module cva6
   // ----------------
   // DCache <-> *
   // ----------------
-  dcache_req_i_t [2:0] dcache_req_ports_ex_cache;
-  dcache_req_o_t [2:0] dcache_req_ports_cache_ex;
-  dcache_req_i_t [1:0] dcache_req_ports_acc_cache;
-  dcache_req_o_t [1:0] dcache_req_ports_cache_acc;
+  // dcache_req_i_t [2:0] dcache_req_ports_ex_cache;
+  // dcache_req_o_t [2:0] dcache_req_ports_cache_ex;
+  // dcache_req_i_t [1:0] dcache_req_ports_acc_cache;
+  // dcache_req_o_t [1:0] dcache_req_ports_cache_acc;
+  dcache_req_i_t dcache_req_ports_ex_cache  [3] ;
+  dcache_req_o_t dcache_req_ports_cache_ex  [3] ;
+  dcache_req_i_t dcache_req_ports_acc_cache [2] ;
+  dcache_req_o_t dcache_req_ports_cache_acc [2] ;
   logic dcache_commit_wbuffer_empty;
   logic dcache_commit_wbuffer_not_ni;
 
@@ -1258,8 +1262,10 @@ module cva6
 
   // Acc dispatcher and store buffer share a dcache request port.
   // Store buffer always has priority access over acc dipsatcher.
-  dcache_req_i_t [NumPorts-1:0] dcache_req_to_cache;
-  dcache_req_o_t [NumPorts-1:0] dcache_req_from_cache;
+  // dcache_req_i_t [NumPorts-1:0] dcache_req_to_cache;
+  // dcache_req_o_t [NumPorts-1:0] dcache_req_from_cache;
+  dcache_req_i_t dcache_req_to_cache [NumPorts] ; 
+  dcache_req_o_t dcache_req_from_cache [NumPorts] ;
 
   // D$ request
   assign dcache_req_to_cache[0] = dcache_req_ports_ex_cache[0];
