@@ -42,7 +42,8 @@ FLIST += ${CVA6_REPO_DIR}/core/cvfpu/src/fpu_div_sqrt_mvp/hdl/iteration_div_sqrt
 FLIST += ${CVA6_REPO_DIR}/core/cvfpu/src/fpu_div_sqrt_mvp/hdl/norm_div_sqrt_mvp.sv
 FLIST += ${CVA6_REPO_DIR}/core/cvfpu/src/fpu_div_sqrt_mvp/hdl/nrbd_nrsc_mvp.sv
 FLIST += ${CVA6_REPO_DIR}/core/cvfpu/src/fpu_div_sqrt_mvp/hdl/preprocess_mvp.sv
-FLIST += ${CVA6_REPO_DIR}/core/include/config_pkg.sv
+FLIST += ${ROOT_DIR}/include/config_pkg.sv
+# FLIST += ${CVA6_REPO_DIR}/core/include/config_pkg.sv
 FLIST += ${CVA6_REPO_DIR}/core/include/${TARGET_CFG}_config_pkg.sv
 FLIST += ${CVA6_REPO_DIR}/core/include/riscv_pkg.sv
 FLIST += ${CVA6_REPO_DIR}/core/include/ariane_pkg.sv
@@ -87,7 +88,8 @@ FLIST += ${CVA6_REPO_DIR}/core/compressed_decoder.sv
 FLIST += ${CVA6_REPO_DIR}/core/macro_decoder.sv
 FLIST += ${CVA6_REPO_DIR}/core/controller.sv
 FLIST += ${CVA6_REPO_DIR}/core/csr_buffer.sv
-FLIST += ${CVA6_REPO_DIR}/core/csr_regfile.sv
+FLIST += ${ROOT_DIR}/source/csr_regfile.sv
+# FLIST += ${CVA6_REPO_DIR}/core/csr_regfile.sv
 FLIST += ${CVA6_REPO_DIR}/core/decoder.sv
 FLIST += ${CVA6_REPO_DIR}/core/ex_stage.sv
 FLIST += ${CVA6_REPO_DIR}/core/instr_realign.sv
@@ -206,6 +208,7 @@ FLIST += ${CVA6_REPO_DIR}/core/cva6_mmu/cva6_tlb.sv
 FLIST += ${CVA6_REPO_DIR}/core/cva6_mmu/cva6_shared_tlb.sv
 
 FLIST += ${ROOT_DIR}/test/perf_counters_wrapper/perf_counters_wrapper.sv
+FLIST += ${ROOT_DIR}/test/csr_regfile_wrapper/csr_regfile_wrapper.sv
 
 build:
 	@mkdir -p build
