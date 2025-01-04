@@ -17,6 +17,7 @@ module perf_counters
   import ariane_pkg::*;
 #(
     parameter config_pkg::cva6_cfg_t CVA6Cfg = config_pkg::cva6_cfg_empty,
+    parameter int unsigned NZNrCommitPorts = 8,
     parameter type bp_resolve_t = logic,
     parameter type dcache_req_i_t = logic,
     parameter type dcache_req_o_t = logic,
@@ -34,9 +35,9 @@ module perf_counters
     input logic [CVA6Cfg.XLEN-1:0] data_i,  // data to write
     output logic [CVA6Cfg.XLEN-1:0] data_o,  // data to read
     // from commit stage
-    // input  scoreboard_entry_t [CVA6Cfg.NrCommitPorts-1:0] commit_instr_i,     // the instruction we want to commit
-    input  scoreboard_entry_t commit_instr_i [CVA6Cfg.NrCommitPorts],     // the instruction we want to commit
-    input  logic [CVA6Cfg.NrCommitPorts-1:0]              commit_ack_i,       // acknowledge that we are indeed committing
+    // input  scoreboard_entry_t [CVA6Cfg.NrCommitPort"s"-1:0] commit_instr_i,     // the instruction we want to commit
+    input  scoreboard_entry_t commit_instr_i [NZNrCommitPorts],     // the instruction we want to commit
+    input  logic [NZNrCommitPorts-1:0]              commit_ack_i,       // acknowledge that we are indeed committing
     // from L1 caches
     input logic l1_icache_miss_i,
     input logic l1_dcache_miss_i,
@@ -75,13 +76,13 @@ module perf_counters
   logic [4:0] mhpmevent_d[MHPMCounterNum:1];
   logic [4:0] mhpmevent_q[MHPMCounterNum:1];
   // internal signal to detect event on multiple commit ports
-  logic [CVA6Cfg.NrCommitPorts-1:0] load_event;
-  logic [CVA6Cfg.NrCommitPorts-1:0] store_event;
-  logic [CVA6Cfg.NrCommitPorts-1:0] branch_event;
-  logic [CVA6Cfg.NrCommitPorts-1:0] call_event;
-  logic [CVA6Cfg.NrCommitPorts-1:0] return_event;
-  logic [CVA6Cfg.NrCommitPorts-1:0] int_event;
-  logic [CVA6Cfg.NrCommitPorts-1:0] fp_event;
+  logic [NZNrCommitPorts-1:0] load_event;
+  logic [NZNrCommitPorts-1:0] store_event;
+  logic [NZNrCommitPorts-1:0] branch_event;
+  logic [NZNrCommitPorts-1:0] call_event;
+  logic [NZNrCommitPorts-1:0] return_event;
+  logic [NZNrCommitPorts-1:0] int_event;
+  logic [NZNrCommitPorts-1:0] fp_event;
 
   //Multiplexer
   always_comb begin : Mux
@@ -94,7 +95,7 @@ module perf_counters
     int_event = '{default: 0};
     fp_event = '{default: 0};
 
-    for (int unsigned j = 0; j < CVA6Cfg.NrCommitPorts; j++) begin
+    for (int unsigned j = 0; j < NZNrCommitPorts; j++) begin
       load_event[j] = commit_ack_i[j] & (commit_instr_i[j].fu == LOAD);
       store_event[j] = commit_ack_i[j] & (commit_instr_i[j].fu == STORE);
       branch_event[j] = commit_ack_i[j] & (commit_instr_i[j].fu == CTRL_FLOW);

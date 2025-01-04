@@ -12,6 +12,7 @@ XVLOG_DEFS += -d CFG_$(TARGET_CFG)
 XVLOG_DEFS += -d XSIM
 XVLOG_DEFS += -d VERILATOR
 
+INCDR += -i ${ROOT_DIR}/include/
 INCDR += -i ${CVA6_REPO_DIR}/core/include/
 INCDR += -i ${CVA6_REPO_DIR}/vendor/pulp-platform/common_cells/include/
 INCDR += -i ${CVA6_REPO_DIR}/vendor/pulp-platform/common_cells/src/
@@ -204,6 +205,8 @@ FLIST += ${CVA6_REPO_DIR}/core/cva6_mmu/cva6_ptw.sv
 FLIST += ${CVA6_REPO_DIR}/core/cva6_mmu/cva6_tlb.sv
 FLIST += ${CVA6_REPO_DIR}/core/cva6_mmu/cva6_shared_tlb.sv
 
+FLIST += ${ROOT_DIR}/test/perf_counters_wrapper/perf_counters_wrapper.sv
+
 build:
 	@mkdir -p build
 	@echo "*" > build/.gitignore
@@ -237,9 +240,9 @@ xvlog: build submodules/cva6/core/Flist.cva6
 
 .PHONY: xelab
 xelab:
-	@echo -e "\033[3;35mElaborating cva6...\033[0m"
+	@echo -e "\033[3;35mElaborating cva6 $(TOP)...\033[0m"
 	@cd build; xelab -debug typical $(TOP) --nolog
-	@echo -e "\033[3;35mElaborated cva6\033[0m"
+	@echo -e "\033[3;35mElaborated cva6 $(TOP)\033[0m"
 
 .PHONY: compile
 compile: clean xvlog xelab
