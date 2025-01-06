@@ -5,7 +5,9 @@ module perf_counters_wrapper;
     import ariane_pkg::*;
     import config_pkg::*;
 
-    localparam config_pkg::cva6_cfg_t CVA6Cfg = config_pkg::cva6_cfg_empty;
+    localparam config_pkg::cva6_cfg_t CVA6Cfg = build_config_pkg::build_config(
+      cva6_config_pkg::cva6_cfg
+    );
     localparam type bp_resolve_t = struct packed {
         logic                    valid;
         logic [CVA6Cfg.VLEN-1:0] pc;
@@ -79,8 +81,6 @@ module perf_counters_wrapper;
       logic vfp;
     };
     localparam int unsigned NumPorts = 3;
-    localparam int unsigned NZNrCommitPorts = 8;
-    //CVA6Cfg.NrCommitPorts
 
     logic clk_i;
     logic rst_ni;
@@ -88,8 +88,8 @@ module perf_counters_wrapper;
     logic [11:0] addr_i;
     logic we_i;
     logic [CVA6Cfg.XLEN-1:0] data_i;
-    scoreboard_entry_t commit_instr_i [NZNrCommitPorts];
-    logic [NZNrCommitPorts-1:0] commit_ack_i;
+    scoreboard_entry_t commit_instr_i [CVA6Cfg.NrCommitPorts];
+    logic [CVA6Cfg.NrCommitPorts-1:0] commit_ack_i;
     logic l1_icache_miss_i;
     logic l1_dcache_miss_i;
     logic itlb_miss_i;
@@ -110,7 +110,6 @@ module perf_counters_wrapper;
 
     perf_counters #(
         .CVA6Cfg(CVA6Cfg),
-        .NZNrCommitPorts(NZNrCommitPorts),
         .bp_resolve_t(bp_resolve_t),
         .exception_t(exception_t),
         .scoreboard_entry_t(scoreboard_entry_t),

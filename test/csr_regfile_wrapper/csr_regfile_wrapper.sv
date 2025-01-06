@@ -4,51 +4,42 @@
 module csr_regfile_wrapper;
     import ariane_pkg::*;
     import config_pkg::*;
-
-    localparam int unsigned NZNrCommitPorts         = 8;
-    localparam int unsigned NZXLEN                  = 64;
-    localparam int unsigned NZVLEN                  = 64;
-    localparam int unsigned NZPLEN                  = 64;
-    localparam int unsigned NZGPLEN                 = 64;
-    localparam int unsigned NZPPNW                  = 64;
-    localparam int unsigned NZASID_WIDTH            = 4;
-    localparam int unsigned NZVMID_WIDTH            = 4;
-    localparam int unsigned NZTRANS_ID_BITS         = 64;
-    localparam int unsigned NZNrPMPEntries          = 64;
-    localparam config_pkg::cva6_cfg_t CVA6Cfg = config_pkg::cva6_cfg_empty;
+    localparam config_pkg::cva6_cfg_t CVA6Cfg = build_config_pkg::build_config(
+      cva6_config_pkg::cva6_cfg
+    );
 
     localparam type exception_t = struct packed {
-      logic [NZXLEN-1:0] cause;
-      logic [NZXLEN-1:0] tval;
-      logic [NZGPLEN-1:0] tval2;
+      logic [CVA6Cfg.XLEN-1:0] cause;
+      logic [CVA6Cfg.XLEN-1:0] tval;
+      logic [CVA6Cfg.GPLEN-1:0] tval2;
       logic [31:0] tinst;
       logic gva;
       logic valid;
     };
 
     localparam type irq_ctrl_t = struct packed {
-      logic [NZXLEN-1:0] mie;
-      logic [NZXLEN-1:0] mip;
-      logic [NZXLEN-1:0] mideleg;
-      logic [NZXLEN-1:0] hideleg;
+      logic [CVA6Cfg.XLEN-1:0] mie;
+      logic [CVA6Cfg.XLEN-1:0] mip;
+      logic [CVA6Cfg.XLEN-1:0] mideleg;
+      logic [CVA6Cfg.XLEN-1:0] hideleg;
       logic                    sie;
       logic                    global_enable;
     };
 
     localparam type branchpredict_sbe_t = struct packed {
       cf_t                     cf;
-      logic [NZVLEN-1:0] predict_address;
+      logic [CVA6Cfg.VLEN-1:0] predict_address;
     };
 
     localparam type scoreboard_entry_t = struct packed {
-      logic [NZVLEN-1:0] pc;
-      logic [NZTRANS_ID_BITS-1:0] trans_id;
+      logic [CVA6Cfg.VLEN-1:0] pc;
+      logic [CVA6Cfg.TRANS_ID_BITS-1:0] trans_id;
       fu_t fu;
       fu_op op;
       logic [REG_ADDR_SIZE-1:0] rs1;
       logic [REG_ADDR_SIZE-1:0] rs2;
       logic [REG_ADDR_SIZE-1:0] rd;
-      logic [NZXLEN-1:0] result;
+      logic [CVA6Cfg.XLEN-1:0] result;
       logic valid;
       logic use_imm;
       logic use_zimm;
@@ -66,28 +57,29 @@ module csr_regfile_wrapper;
     localparam int                    VmidWidth          = 1;
     localparam int unsigned           MHPMCounterNum     = 6;
 
+
     logic clk_i;
     logic rst_ni;
     logic time_irq_i;
     logic flush_o;
     logic halt_csr_o;
     scoreboard_entry_t commit_instr_i;
-    logic [NZNrCommitPorts-1:0] commit_ack_i;
-    logic [NZVLEN-1:0] boot_addr_i;
-    logic [NZXLEN-1:0] hart_id_i;
+    logic [CVA6Cfg.NrCommitPorts-1:0] commit_ack_i;
+    logic [CVA6Cfg.VLEN-1:0] boot_addr_i;
+    logic [CVA6Cfg.XLEN-1:0] hart_id_i;
     exception_t ex_i;
     fu_op csr_op_i;
     logic [11:0] csr_addr_i;
-    logic [NZXLEN-1:0] csr_wdata_i;
-    logic [NZXLEN-1:0] csr_rdata_o;
+    logic [CVA6Cfg.XLEN-1:0] csr_wdata_i;
+    logic [CVA6Cfg.XLEN-1:0] csr_rdata_o;
     logic dirty_fp_state_i;
     logic csr_write_fflags_i;
     logic dirty_v_state_i;
-    logic [NZVLEN-1:0] pc_i;
+    logic [CVA6Cfg.VLEN-1:0] pc_i;
     exception_t csr_exception_o;
-    logic [NZVLEN-1:0] epc_o;
+    logic [CVA6Cfg.VLEN-1:0] epc_o;
     logic eret_o;
-    logic [NZVLEN-1:0] trap_vector_base_o;
+    logic [CVA6Cfg.VLEN-1:0] trap_vector_base_o;
     riscv::priv_lvl_t priv_lvl_o;
     logic v_o;
     logic [4:0] acc_fflags_ex_i;
@@ -110,12 +102,12 @@ module csr_regfile_wrapper;
     logic vs_sum_o;
     logic mxr_o;
     logic vmxr_o;
-    logic [NZPPNW-1:0] satp_ppn_o;
-    logic [NZASID_WIDTH-1:0] asid_o;
-    logic [NZPPNW-1:0] vsatp_ppn_o;
-    logic [NZASID_WIDTH-1:0] vs_asid_o;
-    logic [NZPPNW-1:0] hgatp_ppn_o;
-    logic [NZVMID_WIDTH-1:0] vmid_o;
+    logic [CVA6Cfg.PPNW-1:0] satp_ppn_o;
+    logic [CVA6Cfg.ASID_WIDTH-1:0] asid_o;
+    logic [CVA6Cfg.PPNW-1:0] vsatp_ppn_o;
+    logic [CVA6Cfg.ASID_WIDTH-1:0] vs_asid_o;
+    logic [CVA6Cfg.PPNW-1:0] hgatp_ppn_o;
+    logic [CVA6Cfg.VMID_WIDTH-1:0] vmid_o;
     logic [1:0] irq_i;
     logic ipi_i;
     logic debug_req_i;
@@ -131,26 +123,16 @@ module csr_regfile_wrapper;
     logic dcache_en_o;
     logic acc_cons_en_o;
     logic [11:0] perf_addr_o;
-    logic [NZXLEN-1:0] perf_data_o;
-    logic [NZXLEN-1:0] perf_data_i;
+    logic [CVA6Cfg.XLEN-1:0] perf_data_o;
+    logic [CVA6Cfg.XLEN-1:0] perf_data_i;
     logic perf_we_o;
-    riscv::pmpcfg_t [(NZNrPMPEntries > 0 ? NZNrPMPEntries-1 : 0):0] pmpcfg_o;
-    logic [(NZNrPMPEntries > 0 ? NZNrPMPEntries-1 : 0):0][NZPLEN-3:0] pmpaddr_o;
+    riscv::pmpcfg_t [(CVA6Cfg.NrPMPEntries > 0 ? CVA6Cfg.NrPMPEntries-1 : 0):0] pmpcfg_o;
+    logic [(CVA6Cfg.NrPMPEntries > 0 ? CVA6Cfg.NrPMPEntries-1 : 0):0][CVA6Cfg.PLEN-3:0] pmpaddr_o;
     logic [31:0] mcountinhibit_o;
-    rvfi_probes_csr_t rvfi_csr_;
+    rvfi_probes_csr_t rvfi_csr_o;
 
     csr_regfile #(
       .CVA6Cfg           (CVA6Cfg),
-      .NZNrCommitPorts   (NZNrCommitPorts),
-      .NZXLEN            (NZXLEN),
-      .NZVLEN            (NZVLEN),
-      .NZPLEN            (NZPLEN),
-      .NZGPLEN           (NZGPLEN),
-      .NZPPNW            (NZPPNW),
-      .NZASID_WIDTH      (NZASID_WIDTH),
-      .NZVMID_WIDTH      (NZVMID_WIDTH),
-      .NZTRANS_ID_BITS   (NZTRANS_ID_BITS),
-      .NZNrPMPEntries    (NZNrPMPEntries),
       .exception_t       (exception_t),
       .irq_ctrl_t        (irq_ctrl_t),
       .scoreboard_entry_t(scoreboard_entry_t),
