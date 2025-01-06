@@ -69,8 +69,7 @@ FLIST += ${CVA6_REPO_DIR}/vendor/pulp-platform/common_cells/src/stream_arbiter_f
 FLIST += ${CVA6_REPO_DIR}/vendor/pulp-platform/common_cells/src/stream_mux.sv
 FLIST += ${CVA6_REPO_DIR}/vendor/pulp-platform/common_cells/src/stream_demux.sv
 FLIST += ${CVA6_REPO_DIR}/vendor/pulp-platform/common_cells/src/lzc.sv
-# FLIST += ${CVA6_REPO_DIR}/vendor/pulp-platform/common_cells/src/rr_arb_tree.sv
-FLIST += ${ROOT_DIR}/source/rr_arb_tree.sv
+FLIST += ${CVA6_REPO_DIR}/vendor/pulp-platform/common_cells/src/rr_arb_tree.sv
 FLIST += ${CVA6_REPO_DIR}/vendor/pulp-platform/common_cells/src/shift_reg.sv
 FLIST += ${CVA6_REPO_DIR}/vendor/pulp-platform/common_cells/src/unread.sv
 FLIST += ${CVA6_REPO_DIR}/vendor/pulp-platform/common_cells/src/popcount.sv
@@ -208,6 +207,7 @@ FLIST += ${CVA6_REPO_DIR}/core/cva6_mmu/cva6_shared_tlb.sv
 FLIST += ${ROOT_DIR}/test/perf_counters_wrapper/perf_counters_wrapper.sv
 FLIST += ${ROOT_DIR}/test/csr_regfile_wrapper/csr_regfile_wrapper.sv
 FLIST += ${ROOT_DIR}/test/controller_wrapper/controller_wrapper.sv
+FLIST += ${ROOT_DIR}/test/rr_arb_tree_wrapper/rr_arb_tree_wrapper.sv
 
 build:
 	@mkdir -p build
