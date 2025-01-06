@@ -10,11 +10,21 @@
   end
 
 `define EQUAL_CONT(arr1, arr2, size) \
-for (int i = 0; i < size; i++) begin \
-  arr1[i] = arr2[i]; \
-end
+  for (int i = 0; i < size; i++) begin \
+    arr1[i] = arr2[i]; \
+  end
 
 `define EQUAL_PROC(arr1, arr2, size) \
 for (int i = 0; i < size; i++) begin \
   arr1[i] <= arr2[i]; \
+end
+
+`define SET_LOW_CONT(arr, size) \
+for (int i = 0; i < size; i++) begin \
+  arr[i] = '0; \
+end
+
+`define SET_LOW_PROC(arr, size) \
+for (int i = 0; i < size; i++) begin \
+  arr[i] <= '0; \
 end

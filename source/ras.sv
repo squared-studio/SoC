@@ -49,11 +49,7 @@ module ras #(
 
   always_comb begin
     // stack_d = stack_q;
-    // for (int i = 0; i < DEPTH; i++) begin
-    //   stack_d[i] = stack_q[i];
-    // end
     `EQUAL_CONT(stack_d, stack_q, DEPTH)
-
 
     // push on the stack
     if (push_i) begin
@@ -80,9 +76,7 @@ module ras #(
     // top of the stack
     if (pop_i && push_i) begin
       // stack_d = stack_q;
-      for (int i = 0; i < DEPTH; i++) begin
-        stack_d[i] = stack_q[i];
-      end
+      `EQUAL_CONT(stack_d, stack_q, DEPTH)
 
       stack_d[0].ra = data_i;
       stack_d[0].valid = 1'b1;
@@ -90,26 +84,17 @@ module ras #(
 
     if (flush_bp_i) begin
       // stack_d = '0;
-      for (int i = 0; i < DEPTH; i++) begin
-        stack_d[i] = '0;
-      end
+      `SET_LOW_CONT(stack_d, DEPTH)
     end
   end
 
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (~rst_ni) begin
       // stack_q <= '0;
-      // stack_q <= '{default: '0}; // Struct initialization
-      for (int i = 0; i < DEPTH; i++) begin
-        stack_q[i] <= '0;
-      end
+      `SET_LOW_PROC(stack_q, DEPTH)
     end else begin
-
       // stack_q <= stack_d;
-      for (int i = 0; i < DEPTH; i++) begin
-        stack_q[i] <= stack_d[i];
-      end
-
+      `EQUAL_PROC(stack_q, stack_d, DEPTH)
     end
   end
 endmodule
