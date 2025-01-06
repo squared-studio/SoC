@@ -207,7 +207,7 @@ FLIST += ${CVA6_REPO_DIR}/core/cva6_mmu/cva6_shared_tlb.sv
 
 FLIST += ${ROOT_DIR}/test/perf_counters_wrapper/perf_counters_wrapper.sv
 FLIST += ${ROOT_DIR}/test/csr_regfile_wrapper/csr_regfile_wrapper.sv
-FLIST += ${ROOT_DIR}/test/top_wrapper/top_wrapper.sv
+FLIST += ${ROOT_DIR}/test/controller_wrapper/controller_wrapper.sv
 
 build:
 	@mkdir -p build
