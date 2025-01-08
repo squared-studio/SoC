@@ -75,13 +75,13 @@ module instr_queue
     // Branch predict - FRONTEND
     input logic [CVA6Cfg.VLEN-1:0] predict_address_i,
     // Instruction predict address - FRONTEND
-    input ariane_pkg::cf_t [CVA6Cfg.INSTR_PER_FETCH-1:0] cf_type_i,
+    input ariane_pkg::cf_t cf_type_i [CVA6Cfg.INSTR_PER_FETCH], // changed
     // Replay instruction because one of the FIFO was  full - FRONTEND
     output logic replay_o,
     // Address at which to replay the fetch - FRONTEND
     output logic [CVA6Cfg.VLEN-1:0] replay_addr_o,
     // Handshake’s data with ID_STAGE - ID_STAGE
-    output fetch_entry_t [CVA6Cfg.NrIssuePorts-1:0] fetch_entry_o,
+    output fetch_entry_t fetch_entry_o [CVA6Cfg.NrIssuePorts], // changed
     // Handshake’s valid with ID_STAGE - ID_STAGE
     output logic [CVA6Cfg.NrIssuePorts-1:0] fetch_entry_valid_o,
     // Handshake’s ready with ID_STAGE - ID_STAGE
@@ -102,8 +102,13 @@ module instr_queue
   } instr_data_t;
 
   logic [CVA6Cfg.LOG2_INSTR_PER_FETCH-1:0] branch_index;
+
   // instruction queues
-  instr_data_t [CVA6Cfg.INSTR_PER_FETCH-1:0] instr_data_in, instr_data_out;
+  // instr_data_t [CVA6Cfg.INSTR_PER_FETCH-1:0] instr_data_in, instr_data_out;
+  instr_data_t  instr_data_in [CVA6Cfg.INSTR_PER_FETCH];  // changed
+  instr_data_t  instr_data_out [CVA6Cfg.INSTR_PER_FETCH]; // changed
+
+
   logic [CVA6Cfg.INSTR_PER_FETCH-1:0] push_instr, push_instr_fifo;
   logic [CVA6Cfg.INSTR_PER_FETCH-1:0] pop_instr;
   logic [CVA6Cfg.INSTR_PER_FETCH-1:0] instr_queue_full;
@@ -142,7 +147,8 @@ module instr_queue
   logic [CVA6Cfg.INSTR_PER_FETCH*2-1:0] fifo_pos_extended;
   logic [CVA6Cfg.INSTR_PER_FETCH-1:0] fifo_pos;
   logic [CVA6Cfg.INSTR_PER_FETCH*2-1:0][31:0] instr;
-  ariane_pkg::cf_t [CVA6Cfg.INSTR_PER_FETCH*2-1:0] cf;
+
+  ariane_pkg::cf_t cf [CVA6Cfg.INSTR_PER_FETCH*2];  // changed
   // replay interface
   logic [CVA6Cfg.INSTR_PER_FETCH-1:0] instr_overflow_fifo;
 
@@ -370,7 +376,13 @@ module instr_queue
             fetch_entry_o[NID].instruction = instr_data_out[i].instr;
             fetch_entry_o[NID].ex.valid = instr_data_out[i].ex != ariane_pkg::FE_NONE;
             fetch_entry_o[NID].ex.tval = {{64 - CVA6Cfg.VLEN{1'b0}}, instr_data_out[i].ex_vaddr};
+
+
+
+
             fetch_entry_o[NID].branch_predict.cf = instr_data_out[i].cf;
+
+
             // Cannot output two CF the same cycle.
             pop_instr[i] = fetch_entry_fire[NID];
           end
@@ -419,6 +431,7 @@ module instr_queue
   end
 
   for (genvar i = 0; i < CVA6Cfg.NrIssuePorts; i++) begin
+
     assign fetch_entry_is_cf[i] = fetch_entry_o[i].branch_predict.cf != ariane_pkg::NoCF;
     assign fetch_entry_fire[i]  = fetch_entry_valid_o[i] & fetch_entry_ready_i[i];
   end

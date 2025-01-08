@@ -13,12 +13,14 @@
 // Additional contributions by:
 //                 Angela Gonzalez - PlanV Technologies
 
+`include "macros.sv"  // changed
+
 module cva6_fifo_v3 #(
     parameter bit FALL_THROUGH = 1'b0,  // fifo is in fall-through mode
     parameter bit FPGA_ALTERA = 1'b0,  // FPGA Altera optimizations enabled
     parameter int unsigned DATA_WIDTH = 32,  // default data width if the fifo is of type logic
     parameter int unsigned DEPTH = 8,  // depth can be arbitrary from 0 to 2**32
-    parameter type dtype = logic,
+    parameter type dtype = logic [DATA_WIDTH-1:0],
     parameter bit FPGA_EN = 1'b0,
     // DO NOT OVERWRITE THIS PARAMETER
     parameter int unsigned ADDR_DEPTH = (DEPTH > 1) ? $clog2(DEPTH) : 1
@@ -32,10 +34,10 @@ module cva6_fifo_v3 #(
     output logic                  empty_o,     // queue is empty
     output logic [ADDR_DEPTH-1:0] usage_o,     // fill pointer
     // as long as the queue is not full we can push new data
-    input  dtype                  data_i [DATA_WIDTH],      // data to push into the queue
+    input  dtype                  data_i,      // data to push into the queue
     input  logic                  push_i,      // data is valid and can be pushed to the queue
     // as long as the queue is not empty we can pop new elements
-    output dtype                  data_o[DATA_WIDTH],      // output data
+    output dtype                  data_o,      // output data
     input  logic                  pop_i        // pop head from queue
 );
   // local parameter
@@ -50,8 +52,8 @@ module cva6_fifo_v3 #(
   logic [ADDR_DEPTH:0] status_cnt_n, status_cnt_q;
   // actual memory
   // dtype [FifoDepth - 1:0] mem_n, mem_q;
-  dtype mem_n[FifoDepth];
-  dtype mem_q[FifoDepth];
+  dtype mem_n [FifoDepth];  // changed
+  dtype mem_q [FifoDepth];  // changed
   dtype data_ft_n, data_ft_q;
   logic first_word_n, first_word_q;
 
@@ -206,12 +208,11 @@ module cva6_fifo_v3 #(
   end else begin : gen_asic_queue
     always_ff @(posedge clk_i or negedge rst_ni) begin
       if (~rst_ni) begin
-        mem_q <= '0;
+        // mem_q <= '0;
+        `SET_LOW_PROC(mem_q)  // changed
       end else if (!gate_clock) begin
         // mem_q <= mem_n;
-        foreach (mem_n[i]) begin
-          mem_q[i] <= mem_n[i];
-        end
+        `EQUAL_PROC(mem_q, mem_n) // changed
       end
     end
   end

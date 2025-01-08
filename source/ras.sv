@@ -14,7 +14,7 @@
 // Date: 09.06.2018
 
 // return address stack
-`include "macros.sv"
+`include "macros.sv"  // changed
 
 module ras #(
     parameter config_pkg::cva6_cfg_t CVA6Cfg = config_pkg::cva6_cfg_empty,
@@ -49,7 +49,7 @@ module ras #(
 
   always_comb begin
     // stack_d = stack_q;
-    `EQUAL_CONT(stack_d, stack_q, DEPTH)
+    `EQUAL_CONT(stack_d, stack_q)
 
     // push on the stack
     if (push_i) begin
@@ -76,7 +76,7 @@ module ras #(
     // top of the stack
     if (pop_i && push_i) begin
       // stack_d = stack_q;
-      `EQUAL_CONT(stack_d, stack_q, DEPTH)
+      `EQUAL_CONT(stack_d, stack_q)
 
       stack_d[0].ra = data_i;
       stack_d[0].valid = 1'b1;
@@ -84,17 +84,17 @@ module ras #(
 
     if (flush_bp_i) begin
       // stack_d = '0;
-      `SET_LOW_CONT(stack_d, DEPTH)
+      `SET_LOW_CONT(stack_d)
     end
   end
 
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (~rst_ni) begin
       // stack_q <= '0;
-      `SET_LOW_PROC(stack_q, DEPTH)
+      `SET_LOW_PROC(stack_q)
     end else begin
       // stack_q <= stack_d;
-      `EQUAL_PROC(stack_q, stack_d, DEPTH)
+      `EQUAL_PROC(stack_q, stack_d)
     end
   end
 endmodule

@@ -59,7 +59,7 @@ module frontend
     // Handshake between CACHE and FRONTEND (fetch) - CACHES
     input icache_drsp_t icache_dreq_i,
     // Handshake's data between fetch and decode - ID_STAGE
-    output fetch_entry_t [CVA6Cfg.NrIssuePorts-1:0] fetch_entry_o,
+    output fetch_entry_t  fetch_entry_o [CVA6Cfg.NrIssuePorts], // changed
     // Handshake's valid between fetch and decode - ID_STAGE
     output logic [CVA6Cfg.NrIssuePorts-1:0] fetch_entry_valid_o,
     // Handshake's ready between fetch and decode - ID_STAGE
@@ -149,7 +149,10 @@ module frontend
 
   // Instruction FIFO
   logic [           CVA6Cfg.VLEN-1:0] predict_address;
-  cf_t  [CVA6Cfg.INSTR_PER_FETCH-1:0] cf_type;
+
+  // cf_t  [CVA6Cfg.INSTR_PER_FETCH-1:0] cf_type;
+  cf_t  cf_type [CVA6Cfg.INSTR_PER_FETCH];
+  
   logic [CVA6Cfg.INSTR_PER_FETCH-1:0] taken_rvi_cf;
   logic [CVA6Cfg.INSTR_PER_FETCH-1:0] taken_rvc_cf;
 
@@ -482,105 +485,105 @@ module frontend
     );
   end
 
-//   //For FPGA, BTB is implemented in read synchronous BRAM
-//   //while for ASIC, BTB is implemented in D flip-flop
-//   //and can be read at the same cycle.
-//   //Same for BHT
-//   assign vpc_btb = (CVA6Cfg.FpgaEn) ? icache_dreq_i.vaddr : icache_vaddr_q;
-//   assign vpc_bht = (CVA6Cfg.FpgaEn && CVA6Cfg.FpgaAlteraEn && icache_dreq_i.valid) ? icache_dreq_i.vaddr : icache_vaddr_q;
+  //For FPGA, BTB is implemented in read synchronous BRAM
+  //while for ASIC, BTB is implemented in D flip-flop
+  //and can be read at the same cycle.
+  //Same for BHT
+  assign vpc_btb = (CVA6Cfg.FpgaEn) ? icache_dreq_i.vaddr : icache_vaddr_q;
+  assign vpc_bht = (CVA6Cfg.FpgaEn && CVA6Cfg.FpgaAlteraEn && icache_dreq_i.valid) ? icache_dreq_i.vaddr : icache_vaddr_q;
 
-//   if (CVA6Cfg.BTBEntries == 0) begin
-//     assign btb_prediction = '0;
-//   end else begin : btb_gen
-//     btb #(
-//         .CVA6Cfg   (CVA6Cfg),
-//         .btb_update_t(btb_update_t),
-//         .btb_prediction_t(btb_prediction_t),
-//         .NR_ENTRIES(CVA6Cfg.BTBEntries)
-//     ) i_btb (
-//         .clk_i,
-//         .rst_ni,
-//         .flush_bp_i      (flush_bp_i),
-//         .debug_mode_i,
-//         .vpc_i           (vpc_btb),
-//         .btb_update_i    (btb_update),
-//         .btb_prediction_o(btb_prediction)
-//     );
-//   end
+  if (CVA6Cfg.BTBEntries == 0) begin
+    assign btb_prediction = '0;
+  end else begin : btb_gen
+    btb #(
+        .CVA6Cfg   (CVA6Cfg),
+        .btb_update_t(btb_update_t),
+        .btb_prediction_t(btb_prediction_t),
+        .NR_ENTRIES(CVA6Cfg.BTBEntries)
+    ) i_btb (
+        .clk_i,
+        .rst_ni,
+        .flush_bp_i      (flush_bp_i),
+        .debug_mode_i,
+        .vpc_i           (vpc_btb),
+        .btb_update_i    (btb_update),
+        .btb_prediction_o(btb_prediction)
+    );
+  end
 
-//   if (CVA6Cfg.BHTEntries == 0) begin
-//     assign bht_prediction = '0;
-//   end else begin : bht_gen
-//     bht #(
-//         .CVA6Cfg   (CVA6Cfg),
-//         .bht_update_t(bht_update_t),
-//         .NR_ENTRIES(CVA6Cfg.BHTEntries)
-//     ) i_bht (
-//         .clk_i,
-//         .rst_ni,
-//         .flush_bp_i      (flush_bp_i),
-//         .debug_mode_i,
-//         .vpc_i           (vpc_bht),
-//         .bht_update_i    (bht_update),
-//         .bht_prediction_o(bht_prediction)
-//     );
-//   end
+  if (CVA6Cfg.BHTEntries == 0) begin
+    assign bht_prediction = '0;
+  end else begin : bht_gen
+    bht #(
+        .CVA6Cfg   (CVA6Cfg),
+        .bht_update_t(bht_update_t),
+        .NR_ENTRIES(CVA6Cfg.BHTEntries)
+    ) i_bht (
+        .clk_i,
+        .rst_ni,
+        .flush_bp_i      (flush_bp_i),
+        .debug_mode_i,
+        .vpc_i           (vpc_bht),
+        .bht_update_i    (bht_update),
+        .bht_prediction_o(bht_prediction)
+    );
+  end
 
-//   // we need to inspect up to CVA6Cfg.INSTR_PER_FETCH instructions for branches
-//   // and jumps
-//   for (genvar i = 0; i < CVA6Cfg.INSTR_PER_FETCH; i++) begin : gen_instr_scan
-//     instr_scan #(
-//         .CVA6Cfg(CVA6Cfg)
-//     ) i_instr_scan (
-//         .instr_i     (instr[i]),
-//         .rvi_return_o(rvi_return[i]),
-//         .rvi_call_o  (rvi_call[i]),
-//         .rvi_branch_o(rvi_branch[i]),
-//         .rvi_jalr_o  (rvi_jalr[i]),
-//         .rvi_jump_o  (rvi_jump[i]),
-//         .rvi_imm_o   (rvi_imm[i]),
-//         .rvc_branch_o(rvc_branch[i]),
-//         .rvc_jump_o  (rvc_jump[i]),
-//         .rvc_jr_o    (rvc_jr[i]),
-//         .rvc_return_o(rvc_return[i]),
-//         .rvc_jalr_o  (rvc_jalr[i]),
-//         .rvc_call_o  (rvc_call[i]),
-//         .rvc_imm_o   (rvc_imm[i])
-//     );
-//   end
+  // we need to inspect up to CVA6Cfg.INSTR_PER_FETCH instructions for branches
+  // and jumps
+  for (genvar i = 0; i < CVA6Cfg.INSTR_PER_FETCH; i++) begin : gen_instr_scan
+    instr_scan #(
+        .CVA6Cfg(CVA6Cfg)
+    ) i_instr_scan (
+        .instr_i     (instr[i]),
+        .rvi_return_o(rvi_return[i]),
+        .rvi_call_o  (rvi_call[i]),
+        .rvi_branch_o(rvi_branch[i]),
+        .rvi_jalr_o  (rvi_jalr[i]),
+        .rvi_jump_o  (rvi_jump[i]),
+        .rvi_imm_o   (rvi_imm[i]),
+        .rvc_branch_o(rvc_branch[i]),
+        .rvc_jump_o  (rvc_jump[i]),
+        .rvc_jr_o    (rvc_jr[i]),
+        .rvc_return_o(rvc_return[i]),
+        .rvc_jalr_o  (rvc_jalr[i]),
+        .rvc_call_o  (rvc_call[i]),
+        .rvc_imm_o   (rvc_imm[i])
+    );
+  end
 
-//   instr_queue #(
-//       .CVA6Cfg(CVA6Cfg),
-//       .fetch_entry_t(fetch_entry_t)
-//   ) i_instr_queue (
-//       .clk_i              (clk_i),
-//       .rst_ni             (rst_ni),
-//       .flush_i            (flush_i),
-//       .instr_i            (instr),                 // from re-aligner
-//       .addr_i             (addr),                  // from re-aligner
-//       .exception_i        (icache_ex_valid_q),     // from I$
-//       .exception_addr_i   (icache_vaddr_q),
-//       .exception_gpaddr_i (icache_gpaddr_q),
-//       .exception_tinst_i  (icache_tinst_q),
-//       .exception_gva_i    (icache_gva_q),
-//       .predict_address_i  (predict_address),
-//       .cf_type_i          (cf_type),
-//       .valid_i            (instruction_valid),     // from re-aligner
-//       .consumed_o         (instr_queue_consumed),
-//       .ready_o            (instr_queue_ready),
-//       .replay_o           (replay),
-//       .replay_addr_o      (replay_addr),
-//       .fetch_entry_o      (fetch_entry_o),         // to back-end
-//       .fetch_entry_valid_o(fetch_entry_valid_o),   // to back-end
-//       .fetch_entry_ready_i(fetch_entry_ready_i)    // to back-end
-//   );
+  instr_queue #(
+      .CVA6Cfg(CVA6Cfg),
+      .fetch_entry_t(fetch_entry_t)
+  ) i_instr_queue (
+      .clk_i              (clk_i),
+      .rst_ni             (rst_ni),
+      .flush_i            (flush_i),
+      .instr_i            (instr),                 // from re-aligner
+      .addr_i             (addr),                  // from re-aligner
+      .exception_i        (icache_ex_valid_q),     // from I$
+      .exception_addr_i   (icache_vaddr_q),
+      .exception_gpaddr_i (icache_gpaddr_q),
+      .exception_tinst_i  (icache_tinst_q),
+      .exception_gva_i    (icache_gva_q),
+      .predict_address_i  (predict_address),
+      .cf_type_i          (cf_type),
+      .valid_i            (instruction_valid),     // from re-aligner
+      .consumed_o         (instr_queue_consumed),
+      .ready_o            (instr_queue_ready),
+      .replay_o           (replay),
+      .replay_addr_o      (replay_addr),
+      .fetch_entry_o      (fetch_entry_o),         // to back-end
+      .fetch_entry_valid_o(fetch_entry_valid_o),   // to back-end
+      .fetch_entry_ready_i(fetch_entry_ready_i)    // to back-end
+  );
 
-//   // pragma translate_off
-// `ifndef VERILATOR
-//   initial begin
-//     assert (CVA6Cfg.FETCH_WIDTH == 32 || CVA6Cfg.FETCH_WIDTH == 64)
-//     else $fatal(1, "[frontend] fetch width != not supported");
-//   end
-// `endif
-//   // pragma translate_on
+  // pragma translate_off
+`ifndef VERILATOR
+  initial begin
+    assert (CVA6Cfg.FETCH_WIDTH == 32 || CVA6Cfg.FETCH_WIDTH == 64)
+    else $fatal(1, "[frontend] fetch width != not supported");
+  end
+`endif
+  // pragma translate_on
 endmodule
