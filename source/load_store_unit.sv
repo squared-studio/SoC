@@ -134,10 +134,13 @@ module load_store_unit
     // Data TLB miss - PERF_COUNTERS
     output logic                                      dtlb_miss_o,
 
-    // Data cache request output - CACHES
-    input  dcache_req_o_t [2:0] dcache_req_ports_i,
-    // Data cache request input - CACHES
-    output dcache_req_i_t [2:0] dcache_req_ports_o,
+    // Data cache request ouput - CACHE
+    // input dcache_req_o_t [2:0] dcache_req_ports_i,
+    input dcache_req_o_t dcache_req_ports_i [3],  // changed
+    // Data cache request input - CACHE
+    // output dcache_req_i_t [2:0] dcache_req_ports_o,
+    output dcache_req_i_t dcache_req_ports_o [3],  // changed
+    
     // TO_BE_COMPLETED - TO_BE_COMPLETED
     input  logic                dcache_wbuffer_empty_i,
     // TO_BE_COMPLETED - TO_BE_COMPLETED
@@ -149,7 +152,7 @@ module load_store_unit
 
     // PMP configuration - CSR_REGFILE
     // input riscv::pmpcfg_t [CVA6Cfg.NrPMPEntries-1:0]                   pmpcfg_i,
-    input riscv::pmpcfg_t                   pmpcfg_i [CVA6Cfg.NrPMPEntries],  // chnaged
+    input riscv::pmpcfg_t                   pmpcfg_i [CVA6Cfg.NrPMPEntries],  // changed
     
     // PMP address - CSR_REGFILE
     input logic           [CVA6Cfg.NrPMPEntries-1:0][CVA6Cfg.PLEN-3:0] pmpaddr_i,
@@ -157,7 +160,7 @@ module load_store_unit
     // RVFI inforamtion - RVFI
     output lsu_ctrl_t                    rvfi_lsu_ctrl_o,
     // RVFI information - RVFI
-    output            [CVA6Cfg.PLEN-1:0] rvfi_mem_paddr_o
+    output  logic          [CVA6Cfg.PLEN-1:0] rvfi_mem_paddr_o
 );
 
   // data is misaligned

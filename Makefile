@@ -87,7 +87,8 @@ FLIST += ${CVA6_REPO_DIR}/core/controller.sv
 FLIST += ${CVA6_REPO_DIR}/core/csr_buffer.sv
 FLIST += ${CVA6_REPO_DIR}/core/csr_regfile.sv
 FLIST += ${CVA6_REPO_DIR}/core/decoder.sv
-FLIST += ${CVA6_REPO_DIR}/core/ex_stage.sv
+# FLIST += ${CVA6_REPO_DIR}/core/ex_stage.sv
+FLIST += ${ROOT_DIR}/source/ex_stage.sv
 FLIST += ${CVA6_REPO_DIR}/core/instr_realign.sv
 # FLIST += ${CVA6_REPO_DIR}/core/id_stage.sv
 FLIST += ${ROOT_DIR}/source/id_stage.sv
@@ -98,7 +99,8 @@ FLIST += ${ROOT_DIR}/source/issue_stage.sv
 FLIST += ${CVA6_REPO_DIR}/core/load_unit.sv
 # FLIST += ${CVA6_REPO_DIR}/core/load_store_unit.sv
 FLIST += ${ROOT_DIR}/source/load_store_unit.sv
-FLIST += ${CVA6_REPO_DIR}/core/lsu_bypass.sv
+# FLIST += ${CVA6_REPO_DIR}/core/lsu_bypass.sv
+FLIST += ${ROOT_DIR}/source/lsu_bypass.sv
 FLIST += ${CVA6_REPO_DIR}/core/mult.sv
 FLIST += ${CVA6_REPO_DIR}/core/multiplier.sv
 FLIST += ${CVA6_REPO_DIR}/core/serdiv.sv
@@ -208,7 +210,8 @@ FLIST += ${ROOT_DIR}/source/cva6_mmu.sv
 # FLIST += ${CVA6_REPO_DIR}/core/cva6_mmu/cva6_ptw.sv
 FLIST += ${ROOT_DIR}/source/cva6_ptw.sv
 FLIST += ${CVA6_REPO_DIR}/core/cva6_mmu/cva6_tlb.sv
-FLIST += ${CVA6_REPO_DIR}/core/cva6_mmu/cva6_shared_tlb.sv
+# FLIST += ${CVA6_REPO_DIR}/core/cva6_mmu/cva6_shared_tlb.sv
+FLIST += ${ROOT_DIR}/source/cva6_shared_tlb.sv
 
 build:
 	@mkdir -p build
