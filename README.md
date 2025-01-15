@@ -1,1 +1,2 @@
-# cva6_fpga_testing
+# README
+<img src="./documents/arch.svg">
