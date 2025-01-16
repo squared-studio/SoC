@@ -60,14 +60,14 @@ FLIST += ${ROOT_DIR}/source/axi_ram.sv
 FLIST += ${ROOT_DIR}/source/axi_rom.sv
 
 # axi_xbar
-FLIST += ${ROOT_DIR}/tmpSRC/axi_id_prepend.sv
-FLIST += ${ROOT_DIR}/tmpSRC/axi_mux.sv
-FLIST += ${ROOT_DIR}/tmpSRC/addr_decode_dync.sv
-FLIST += ${ROOT_DIR}/tmpSRC/addr_decode.sv
-FLIST += ${ROOT_DIR}/tmpSRC/axi_cut.sv
-FLIST += ${ROOT_DIR}/tmpSRC/axi_multicut.sv
-FLIST += ${ROOT_DIR}/tmpSRC/axi_xbar_unmuxed.sv
-FLIST += ${ROOT_DIR}/tmpSRC/axi_xbar.sv
+FLIST += ${ROOT_DIR}/source/axi_id_prepend.sv
+FLIST += ${ROOT_DIR}/source/axi_mux.sv
+FLIST += ${ROOT_DIR}/source/addr_decode_dync.sv
+FLIST += ${ROOT_DIR}/source/addr_decode.sv
+FLIST += ${ROOT_DIR}/source/axi_cut.sv
+FLIST += ${ROOT_DIR}/source/axi_multicut.sv
+FLIST += ${ROOT_DIR}/source/axi_xbar_unmuxed.sv
+FLIST += ${ROOT_DIR}/source/axi_xbar.sv
 
 # block_memory_tb
 FLIST += ${ROOT_DIR}/source/block_memory_tb.sv
