@@ -6,7 +6,7 @@ module axi_to_axi_lite #(
   parameter int unsigned AxiMaxWriteTxns = 32'd0,
   parameter int unsigned AxiMaxReadTxns  = 32'd0,
   parameter bit          FullBW          = 0,
-  parameter bit          FallThrough     = 1'b0,
+  parameter bit          FallThrough     = 1'b1,
   parameter type         full_req_t      = logic,
   parameter type         full_resp_t     = logic,
   parameter type         lite_req_t      = logic,

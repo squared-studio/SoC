@@ -130,12 +130,13 @@ module ariane_tb;
     fork
       forever begin
         @(posedge clk);
-        if (u_axi_ram.addr_out == sym["putchar_stdout"] && u_axi_ram.mem_strb[0] == '1 && u_axi_ram.mem_we == '1 && u_axi_ram.mem_req == '1) begin
-          if (u_axi_ram.mem_wdata[0] == "\n") begin
+        if ((unsigned'(u_axi_ram.mem_waddr_o) + unsigned'(u_axi_ram.MEM_BASE)) == sym["putchar_stdout"]
+          && u_axi_ram.mem_wstrb_o[0] == '1 && u_axi_ram.mem_we_o) begin
+          if (u_axi_ram.mem_wdata_o[0] == "\n") begin
             $display("\033[1;33mSTDOUT         : %s\033[0m [%0t]", prints, $realtime);
             prints = "";
           end else begin
-            $sformat(prints, "%s%c", prints, u_axi_ram.mem_wdata[0]);
+            $sformat(prints, "%s%c", prints, u_axi_ram.mem_wdata_o[0]);
           end
         end
       end
@@ -167,9 +168,13 @@ module ariane_tb;
     // CHECK EXIT CODE
     forever begin
       @(posedge clk);
-      if (u_axi_ram.addr_out == sym["tohost"] && u_axi_ram.mem_we == '1 && u_axi_ram.mem_req == '1) begin
+      if ((unsigned'(u_axi_ram.mem_waddr_o) + unsigned'(u_axi_ram.MEM_BASE)) == sym["tohost"] && u_axi_ram.mem_we_o == '1) begin
         exit_code = '0;
-        foreach (exit_code[i]) if (u_axi_ram.mem_strb[i]) exit_code[i] = u_axi_ram.mem_wdata[i];
+        foreach (exit_code[i]) begin
+          if (u_axi_ram.mem_wstrb_o[i]) begin
+            exit_code[i] = u_axi_ram.mem_wdata_o[i];
+          end
+        end
         break;
       end
     end
@@ -296,7 +301,7 @@ module ariane_tb;
   end
 
   initial begin
-    #25ms;
+    #1ms;
     $fatal(1, "Simulation timeout after 1ms");
   end
 

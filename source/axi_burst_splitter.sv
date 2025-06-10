@@ -79,19 +79,19 @@ module axi_burst_splitter #(
 
     if (atop != '0) return 1'b0;
 
-    if (!axi_pkg::modifiable(cache)) begin
-
-      return (burst == axi_pkg::BURST_INCR) & (len > 16);
-    end
+    // if (!axi_pkg::modifiable(cache)) begin
+    //   return (burst == axi_pkg::BURST_INCR) & (len > 16);
+    // end
 
     return 1'b1;
   endfunction
-  assign sel_aw_unsupported = ~txn_supported(
-      slv_req_i.aw.atop, slv_req_i.aw.burst, slv_req_i.aw.cache, slv_req_i.aw.len
-  );
-  assign sel_ar_unsupported = ~txn_supported(
-      '0, slv_req_i.ar.burst, slv_req_i.ar.cache, slv_req_i.ar.len
-  );
+
+  always_comb
+    sel_aw_unsupported =
+        ~txn_supported(slv_req_i.aw.atop, slv_req_i.aw.burst, slv_req_i.aw.cache, slv_req_i.aw.len);
+  always_comb
+    sel_ar_unsupported =
+        ~txn_supported('0, slv_req_i.ar.burst, slv_req_i.ar.cache, slv_req_i.ar.len);
 
   axi_err_slv #(
       .AxiIdWidth(IdWidth),
