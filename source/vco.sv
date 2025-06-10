@@ -1,10 +1,10 @@
 module vco (
-    input  logic arst_ni,      // Asynchronous active low reset
-    input  logic freq_incr_i,  // increase frequency
-    input  logic freq_decr_i,  // decrease frequency
-    input  logic stable_cfg,   // stable configuration signal
-    output logic clk_o,        // output clock signal
-    output logic locked_o      // output locked signal
+    input  logic arst_ni,
+    input  logic freq_incr_i,
+    input  logic freq_decr_i,
+    input  logic stable_cfg,
+    output logic clk_o,
+    output logic locked_o
 );
 
   localparam realtime MIN_CLK_HALF_PERIOD = 50ps;

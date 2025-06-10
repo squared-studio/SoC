@@ -30,9 +30,7 @@ module axi_to_mem_with_fifo
   localparam int DW = $bits(req_i.w.data);
   localparam int UW = $bits(req_i.aw.user);
 
-
   `AXI_TYPEDEF_ALL(axi, logic[AW-1:0], logic[IW-1:0], logic[DW-1:0], logic[DW/8-1:0], logic[UW-1:0])
-
 
   req_t           intr_req_i;
   resp_t          intr_resp_o;
@@ -42,7 +40,7 @@ module axi_to_mem_with_fifo
   logic  [AW-1:0] addr_out;
   logic  [AW-1:0] addr_tmp;
 
-  atop_t          mem_atop;  // TODO
+  atop_t          mem_atop;
 
   axi_fifo #(
       .Depth      (2),

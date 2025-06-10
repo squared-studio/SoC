@@ -1,13 +1,13 @@
 module pll #(
-    parameter int REF_DEV_WIDTH = 4,  // Reference device width
-    parameter int FB_DEV_WIDTH  = 8   // Feedback device width
+    parameter int REF_DEV_WIDTH = 4,
+    parameter int FB_DEV_WIDTH  = 8
 ) (
-    input  logic                     arst_ni,    // Asynchronous active low reset
-    input  logic                     clk_ref_i,  // Reference clock input
-    input  logic [REF_DEV_WIDTH-1:0] refdiv_i,   // Reference clock input
-    input  logic [ FB_DEV_WIDTH-1:0] fbdiv_i,    // Feedback clock input
-    output logic                     clk_o,      // Output clock signal
-    output logic                     locked_o    // Output locked signal
+    input  logic                     arst_ni,
+    input  logic                     clk_ref_i,
+    input  logic [REF_DEV_WIDTH-1:0] refdiv_i,
+    input  logic [ FB_DEV_WIDTH-1:0] fbdiv_i,
+    output logic                     clk_o,
+    output logic                     locked_o
 );
 
   logic divided_clk_ref;

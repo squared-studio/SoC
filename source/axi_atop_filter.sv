@@ -1,7 +1,7 @@
 module axi_atop_filter #(
     parameter int unsigned AxiIdWidth = 0,
     parameter int unsigned AxiMaxWriteTxns = 0,
-    parameter type axi_req_t = logic,
+    parameter type axi_req_t  = logic,
     parameter type axi_resp_t = logic
 ) (
     input logic clk_i,
