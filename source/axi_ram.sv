@@ -13,40 +13,26 @@ module axi_ram #(
     output resp_t resp_o
 );
 
-  localparam int IW = $bits(req_i.aw.id);
   localparam int AW = $bits(req_i.aw.addr);
   localparam int DW = $bits(req_i.w.data);
-  localparam int UW = $bits(req_i.aw.user);
-  localparam int NumBanks = 1;
-  localparam int EffectiveAddrWidth = MEM_SIZE - $clog2(DW / 8);
+  localparam int MEM_AW = MEM_SIZE - $clog2(DW / 8);
 
-  `AXI_TYPEDEF_ALL(axi, logic[AW-1:0], logic[IW-1:0], logic[DW-1:0], logic[DW/8-1:0], logic[UW-1:0])
+  logic  [    AW-1:0]      addr_out;
 
-  logic  [      AW-1:0]      addr_out;
-  logic  [      AW-1:0]      addr_tmp;
+  logic                    mem_req;
+  logic                    mem_we;
+  logic  [MEM_AW-1:0]      mem_addr;
+  logic  [  DW/8-1:0][7:0] mem_wdata;
+  logic  [  DW/8-1:0]      mem_strb;
+  logic                    mem_rvalid;
+  logic  [  DW/8-1:0][7:0] mem_rdata;
+  logic  [  DW/8-1:0][7:0] tmp_rdata;
 
-  logic                      mem_req;
-  logic  [MEM_SIZE-1:0]      mem_addr;
-  logic  [    DW/8-1:0][7:0] mem_wdata;
-  logic  [    DW/8-1:0]      mem_strb;
-  logic                      mem_rvalid;
-  logic  [    DW/8-1:0][7:0] mem_rdata;
-  logic  [    DW/8-1:0][7:0] tmp_rdata;
-  logic                      mem_we;
+  logic  [  DW/8-1:0][7:0] rdata_q    [$];
 
-  logic  [    DW/8-1:0][7:0] rdata_q    [$];
+  bit    [       7:0]      mem        [longint];
 
-  bit    [         7:0]      mem        [longint];
-
-  req_t                      fifo_req;
-  resp_t                     fifo_resp;
-  resp_t                     final_resp;
-
-  always_comb begin
-    addr_tmp = addr_out - MEM_BASE;
-    mem_addr[MEM_SIZE-1:$clog2(DW/8)] = addr_tmp[MEM_SIZE-1:$clog2(DW/8)];
-    mem_addr[$clog2(DW/8)-1:0] = '0;
-  end
+  resp_t                   final_resp;
 
   always @(posedge clk_i or negedge arst_ni) begin
     if (~arst_ni) begin
@@ -60,13 +46,13 @@ module axi_ram #(
         mem_rvalid <= '0;
       end
       foreach (tmp_rdata[i]) begin
-        tmp_rdata[i] = mem[mem_addr+i];
+        tmp_rdata[i] = mem[mem_addr*8+i];
       end
       if (mem_req) begin
         rdata_q.push_back(tmp_rdata);
         foreach (mem_strb[i]) begin
           if (mem_strb[i] & mem_we & ALLOW_WRITES) begin
-            mem[mem_addr+i] = mem_wdata[i];
+            mem[mem_addr*8+i] = mem_wdata[i];
           end
         end
       end
@@ -74,55 +60,32 @@ module axi_ram #(
   end
 
   always_comb begin
+    addr_out = MEM_BASE + mem_addr * 8;
+  end
+
+  always_comb begin
     resp_o = final_resp;
     if (ALLOW_WRITES == 0) resp_o.b.resp = 2;
   end
 
-  axi_fifo #(
-      .Depth      (32'd4),
-      .FallThrough(1'b0),
-      .aw_chan_t  (axi_aw_chan_t),
-      .w_chan_t   (axi_w_chan_t),
-      .b_chan_t   (axi_b_chan_t),
-      .ar_chan_t  (axi_ar_chan_t),
-      .r_chan_t   (axi_r_chan_t),
-      .axi_req_t  (req_t),
-      .axi_resp_t (resp_t)
-  ) u_fifo (
-      .clk_i     (clk_i),
-      .rst_ni    (arst_ni),
-      .test_i    ('0),
-      .slv_req_i (req_i),
-      .slv_resp_o(final_resp),
-      .mst_req_o (fifo_req),
-      .mst_resp_i(fifo_resp)
-  );
-
-  axi_to_mem #(
-      .axi_req_t   (req_t),
-      .axi_resp_t  (resp_t),
-      .AddrWidth   (AW),
-      .DataWidth   (DW),
-      .IdWidth     (IW),
-      .NumBanks    (1),
-      .BufDepth    (1),
-      .HideStrb    (0),
-      .OutFifoDepth(1)
-  ) i_converter (
-      .clk_i       (clk_i),
-      .rst_ni      (arst_ni),
-      .busy_o      (),
-      .axi_req_i   (fifo_req),
-      .axi_resp_o  (fifo_resp),
-      .mem_req_o   (mem_req),
-      .mem_gnt_i   ('1),
-      .mem_addr_o  (addr_out),
-      .mem_wdata_o (mem_wdata),
-      .mem_strb_o  (mem_strb),
-      .mem_atop_o  (),
-      .mem_we_o    (mem_we),
+  axi_to_mem_with_fifo #(
+      .req_t(req_t),
+      .resp_t(resp_t),
+      .MEM_BASE(MEM_BASE),
+      .MEM_SIZE(MEM_SIZE),
+      .MEM_DW($bits(req_i.w.data))
+  ) u_axi_to_mem_with_fifo (
+      .clk_i(clk_i),
+      .arst_ni(arst_ni),
+      .req_i(req_i),
+      .resp_o(final_resp),
+      .mem_req_o(mem_req),
+      .mem_we_o(mem_we),
+      .mem_addr_o(mem_addr),
+      .mem_wdata_o(mem_wdata),
+      .mem_strb_o(mem_strb),
       .mem_rvalid_i(mem_rvalid),
-      .mem_rdata_i (mem_rdata)
+      .mem_rdata_i(mem_rdata)
   );
 
   function automatic void write_mem_b(input logic [63:0] addr, input logic [7:0] data);

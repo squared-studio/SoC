@@ -21,7 +21,7 @@ TEST?=default
 
 TEST_REPO := tests
 
-HARTID ?= $(shell shuf -i 0-3 -n 1)
+HARTID := $(shell shuf -i 0-3 -n 1)
 
 ####################################################################################################
 # PACKAGE LISTS
@@ -113,8 +113,8 @@ ENV_BUILD:
 	@sha256sum.exe $$(find include/ -type f) $$(find package/ -type f) $$(find source/ -type f) $$(find testbench/ -type f) > build/build_$(TOP)
 
 .PHONY: common_sim_checks
-common_sim_checks:
-	@if [ "$(TOP)" = "ariane_tb" ]; then make -s test; fi
+common_sim_checks: log
+	@if [ "$(TOP)" = "ariane_tb" ]; then make -s test HARTID=${HARTID}; fi
 	@echo "--testplusarg TEST=$(TEST)" > build/xsim_args
 	@echo "--testplusarg HARTID=$(HARTID)" >> build/xsim_args
 
