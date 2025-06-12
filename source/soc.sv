@@ -36,24 +36,6 @@ module soc
   s_req_t  [ soc_pkg::NUM_SLAVES-1:0] s_req;
   s_resp_t [ soc_pkg::NUM_SLAVES-1:0] s_resp;
 
-  for (genvar core = 0; core < soc_pkg::NUM_CORE; core++) begin : g_cores
-    ariane #(
-        .DmBaseAddress(soc_pkg::DM_BASE_ADDR),
-        .CachedAddrBeg(soc_pkg::CACHEABLE_ADDR_START)
-    ) u_core_0 (
-        .clk_i(xtal_i),
-        .rst_ni(glob_arst_ni),
-        .boot_addr_i((longint'('h40000000 + 'h20000 * core))),
-        .hart_id_i(longint'(core)),
-        .irq_i('0),
-        .ipi_i('0),
-        .time_irq_i('0),
-        .debug_req_i('0),
-        .axi_req_o(m_req[core]),
-        .axi_resp_i(m_resp[core])
-    );
-  end
-
   assign m_req[4] = ext_m_req;
   assign ext_m_resp = m_resp[4];
 
@@ -93,5 +75,23 @@ module soc
       .en_default_mst_port_i('1),
       .default_mst_port_i('0)
   );
+
+  for (genvar core = 0; core < soc_pkg::NUM_CORE; core++) begin : g_cores
+    ariane #(
+        .DmBaseAddress(soc_pkg::DM_BASE_ADDR),
+        .CachedAddrBeg(soc_pkg::CACHEABLE_ADDR_START)
+    ) u_core_0 (
+        .clk_i(xtal_i),
+        .rst_ni(glob_arst_ni),
+        .boot_addr_i((longint'('h40000000 + 'h20000 * core))),
+        .hart_id_i(longint'(core)),
+        .irq_i('0),
+        .ipi_i('0),
+        .time_irq_i('0),
+        .debug_req_i('0),
+        .axi_req_o(m_req[core]),
+        .axi_resp_i(m_resp[core])
+    );
+  end
 
 endmodule
