@@ -47,6 +47,9 @@ module soc_ctrl #(
   logic [          NUM_CORE-1:0]                   core_clk_vec_pll;
   logic                                            ram_clk_pll;
 
+  logic [          NUM_CORE-1:0]                   filtered_core_clk_vec_pll;
+  logic                                            filtered_ram_clk_pll;
+
 
   always_comb glob_arst_no = glob_arst_ni & (~glob_arst);
   always_comb ram_arst_no = glob_arst_no & (~ram_arst);
@@ -98,11 +101,20 @@ module soc_ctrl #(
     );
   end
 
+  for (genvar core = 0; core < NUM_CORE; core++) begin : g_cg_f_cores
+    clk_gate u_cg_core_f (
+        .arst_ni(core_arst_vec_no[core]),
+        .en_i(core_pll_locked[core]),
+        .clk_i(core_clk_vec_pll[core]),
+        .clk_o(filtered_core_clk_vec_pll[core])
+    );
+  end
+
   for (genvar core = 0; core < NUM_CORE; core++) begin : g_cg_cores
     clk_gate u_cg_core (
         .arst_ni(core_arst_vec_no[core]),
-        .en_i(core_clk_en_vec[core] & core_pll_locked[core]),
-        .clk_i(core_clk_vec_pll[core]),
+        .en_i(core_clk_en_vec[core]),
+        .clk_i(filtered_core_clk_vec_pll[core]),
         .clk_o(core_clk_vec_o[core])
     );
   end
@@ -119,10 +131,17 @@ module soc_ctrl #(
       .locked_o(ram_pll_locked)
   );
 
+  clk_gate u_cg_ram_f (
+      .arst_ni(ram_arst_no),
+      .en_i(ram_pll_locked),
+      .clk_i(ram_clk_pll),
+      .clk_o(filtered_ram_clk_pll)
+  );
+
   clk_gate u_cg_ram (
       .arst_ni(ram_arst_no),
-      .en_i(ram_clk_en & ram_pll_locked),
-      .clk_i(ram_clk_pll),
+      .en_i(ram_clk_en),
+      .clk_i(filtered_ram_clk_pll),
       .clk_o(ram_clk_o)
   );
 
@@ -146,23 +165,27 @@ module soc_ctrl #(
     end
   end
 
-//   CORE_0
-//         \
-//          CLOCK_LINE_0
-//         /            \
-//   CORE_1              \
-//                        \
-//                         CLOCK_LINE_2
-//                        /            \
-//   CORE_2              /              \
-//         \            /                \
-//          CLOCK_LINE_1                  \
-//         /                               SYS_CLK
-//   CORE_3                                /
-//                                        /
-//                                       /
-//                                      /
-//                                   RAM
+/////////////////// FILTERED CLOCKS ONLY //////////////
+//                                                   //
+//   CORE_0                                          //
+//         \                                         //
+//          CLOCK_LINE_0                             //
+//         /            \                            //
+//   CORE_1              \                           //
+//                        \                          //
+//                         CLOCK_LINE_2              //
+//                        /            \             //
+//   CORE_2              /              \            //
+//         \            /                \           //
+//          CLOCK_LINE_1                  \          //
+//         /                               SYS_CLK   //
+//   CORE_3                                /         //
+//                                        /          //
+//                                       /           //
+//                                      /            //
+//                                   RAM             //
+//                                                   //
+///////////////////////////////////////////////////////
 
   logic clk_l0;
   logic clk_l1;
@@ -171,16 +194,16 @@ module soc_ctrl #(
   clk_mux cl_0 (
     .arst_ni(glob_arst_no),
     .sel_i(sys_pll_select[0]),
-    .clk0_i(core_clk_vec_pll[0]),
-    .clk1_i(core_clk_vec_pll[1]),
+    .clk0_i(filtered_core_clk_vec_pll[0]),
+    .clk1_i(filtered_core_clk_vec_pll[1]),
     .clk_o(clk_l0)
   );
 
   clk_mux cl_1 (
     .arst_ni(glob_arst_no),
     .sel_i(sys_pll_select[0]),
-    .clk0_i(core_clk_vec_pll[2]),
-    .clk1_i(core_clk_vec_pll[3]),
+    .clk0_i(filtered_core_clk_vec_pll[2]),
+    .clk1_i(filtered_core_clk_vec_pll[3]),
     .clk_o(clk_l1)
   );
 
@@ -196,7 +219,7 @@ module soc_ctrl #(
     .arst_ni(glob_arst_no),
     .sel_i(sys_pll_select[2]),
     .clk0_i(clk_l2),
-    .clk1_i(ram_clk_pll),
+    .clk1_i(filtered_ram_clk_pll),
     .clk_o(sys_clk_o)
   );
 

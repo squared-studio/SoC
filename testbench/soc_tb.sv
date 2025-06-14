@@ -111,7 +111,7 @@ module soc_tb;
 
     @(posedge temp_ext_m_clk_o);
 
-    ext_m_read_64('h10000000, data, resp);
+    ext_m_write_64('h10000600, 3200, resp);
     $display("BV0:0x%x", data);
     ext_m_write_64('h10000000, 'h1234567890ABCDEF, resp);
     ext_m_read_64('h10000000, data, resp);
