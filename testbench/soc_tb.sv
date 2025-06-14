@@ -1,3 +1,5 @@
+`include "vip/simple_axi_m_driver.svh"
+
 module soc_tb;
 
   // Display messages at the start and end of the test
@@ -79,120 +81,7 @@ module soc_tb;
     join_none
   endtask
 
-  event ext_master_aw_channel_done_trigger;
-  longint ext_master_aw_channel_next_id = 0;
-  longint ext_master_aw_channel_access_q[$];
-  task automatic ext_master_aw_channel_send(input logic [63:0] addr);
-    longint this_task_id;
-    this_task_id = ext_master_aw_channel_next_id;
-    ext_master_aw_channel_next_id++;
-    ext_master_aw_channel_access_q.push_back(this_task_id);
-    while ((ext_master_aw_channel_access_q[0] != this_task_id) || (glob_arst_ni == 0))
-      @(ext_master_aw_channel_done_trigger);
-    ext_m_req_i.aw.id     <= '0;
-    ext_m_req_i.aw.addr   <= addr;
-    ext_m_req_i.aw.len    <= '0;
-    ext_m_req_i.aw.size   <= 3;
-    ext_m_req_i.aw.burst  <= 1;
-    ext_m_req_i.aw.lock   <= '0;
-    ext_m_req_i.aw.cache  <= '0;
-    ext_m_req_i.aw.prot   <= '0;
-    ext_m_req_i.aw.qos    <= '0;
-    ext_m_req_i.aw.region <= '0;
-    ext_m_req_i.aw.user   <= '0;
-    ext_m_req_i.aw.atop   <= '0;
-    ext_m_req_i.aw_valid  <= '1;
-    do @(posedge xtal_i); while (ext_m_resp_o.aw_ready !== '1);
-    ext_m_req_i.aw_valid <= '0;
-    ext_master_aw_channel_access_q.delete(0);
-    ->ext_master_aw_channel_done_trigger;
-  endtask
-
-  event ext_master_w_channel_done_trigger;
-  longint ext_master_w_channel_next_id = 0;
-  longint ext_master_w_channel_access_q[$];
-  task automatic ext_master_w_channel_send(input logic [63:0] data, input logic [7:0] strb);
-    longint this_task_id;
-    this_task_id = ext_master_w_channel_next_id;
-    ext_master_w_channel_next_id++;
-    ext_master_w_channel_access_q.push_back(this_task_id);
-    while ((ext_master_w_channel_access_q[0] != this_task_id) || (glob_arst_ni == 0))
-      @(ext_master_w_channel_done_trigger);
-    ext_m_req_i.w.data  <= data;
-    ext_m_req_i.w.strb  <= strb;
-    ext_m_req_i.w.last  <= '1;
-    ext_m_req_i.w.user  <= '0;
-    ext_m_req_i.w_valid <= '1;
-    do @(posedge xtal_i); while (ext_m_resp_o.w_ready !== '1);
-    ext_m_req_i.w_valid <= '0;
-    ext_master_w_channel_access_q.delete(0);
-    ->ext_master_w_channel_done_trigger;
-  endtask
-
-  event ext_master_b_channel_done_trigger;
-  longint ext_master_b_channel_next_id = 0;
-  longint ext_master_b_channel_access_q[$];
-  task automatic ext_master_b_channel_recv(output logic [1:0] resp);
-    longint this_task_id;
-    this_task_id = ext_master_b_channel_next_id;
-    ext_master_b_channel_next_id++;
-    ext_master_b_channel_access_q.push_back(this_task_id);
-    while ((ext_master_b_channel_access_q[0] != this_task_id) || (glob_arst_ni == 0))
-      @(ext_master_b_channel_done_trigger);
-    ext_m_req_i.b_ready <= '1;
-    do @(posedge xtal_i); while (ext_m_resp_o.b_valid !== '1);
-    resp = ext_m_resp_o.b.resp;
-    ext_m_req_i.b_ready <= '0;
-    ext_master_b_channel_access_q.delete(0);
-    ->ext_master_b_channel_done_trigger;
-  endtask
-
-  event ext_master_ar_channel_done_trigger;
-  longint ext_master_ar_channel_next_id = 0;
-  longint ext_master_ar_channel_access_q[$];
-  task automatic ext_master_ar_channel_send(input logic [63:0] addr);
-    longint this_task_id;
-    this_task_id = ext_master_ar_channel_next_id;
-    ext_master_ar_channel_next_id++;
-    ext_master_ar_channel_access_q.push_back(this_task_id);
-    while ((ext_master_ar_channel_access_q[0] != this_task_id) || (glob_arst_ni == 0))
-      @(ext_master_ar_channel_done_trigger);
-    ext_m_req_i.ar.id     <= '0;
-    ext_m_req_i.ar.addr   <= addr;
-    ext_m_req_i.ar.len    <= '0;
-    ext_m_req_i.ar.size   <= 3;
-    ext_m_req_i.ar.burst  <= 1;
-    ext_m_req_i.ar.lock   <= '0;
-    ext_m_req_i.ar.cache  <= '0;
-    ext_m_req_i.ar.prot   <= '0;
-    ext_m_req_i.ar.qos    <= '0;
-    ext_m_req_i.ar.region <= '0;
-    ext_m_req_i.ar.user   <= '0;
-    ext_m_req_i.ar_valid  <= '1;
-    do @(posedge xtal_i); while (ext_m_resp_o.ar_ready !== '1);
-    ext_m_req_i.ar_valid <= '0;
-    ext_master_ar_channel_access_q.delete(0);
-    ->ext_master_ar_channel_done_trigger;
-  endtask
-
-  event ext_master_r_channel_done_trigger;
-  longint ext_master_r_channel_next_id = 0;
-  longint ext_master_r_channel_access_q[$];
-  task automatic ext_master_r_channel_recv(output logic [63:0] data, output logic [1:0] resp);
-    longint this_task_id;
-    this_task_id = ext_master_r_channel_next_id;
-    ext_master_r_channel_next_id++;
-    ext_master_r_channel_access_q.push_back(this_task_id);
-    while ((ext_master_r_channel_access_q[0] != this_task_id) || (glob_arst_ni == 0))
-      @(ext_master_r_channel_done_trigger);
-    ext_m_req_i.r_ready <= '1;
-    do @(posedge xtal_i); while (ext_m_resp_o.r_valid !== '1);
-    data = ext_m_resp_o.r.data;
-    resp = ext_m_resp_o.r.resp;
-    ext_m_req_i.r_ready <= '0;
-    ext_master_r_channel_access_q.delete(0);
-    ->ext_master_r_channel_done_trigger;
-  endtask
+  `SIMPLE_AXI_M_DRIVER(ext_m, xtal_i, glob_arst_ni, ext_m_req_i, ext_m_resp_o)
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
   // PROCEDURALS
@@ -205,59 +94,6 @@ module soc_tb;
 
     apply_reset();
     start_clock();
-
-    repeat (10) @(posedge xtal_i);
-
-    u_axi_ram.write_mem_d('h40000000, 'hFEDCBA9876543210);
-
-    fork
-      ext_master_ar_channel_send('h40000000);
-      ext_master_r_channel_recv(rd_data, rd_resp);
-    join
-
-    $display("rd_data:0x%x", rd_data);
-
-    fork
-      ext_master_ar_channel_send('h40000008);
-      ext_master_r_channel_recv(rd_data, rd_resp);
-    join
-
-    $display("rd_data:0x%x", rd_data);
-
-    fork
-      begin
-        fork
-          ext_master_aw_channel_send('h40000000);
-          ext_master_w_channel_send('hFFFFFFFFFFFFFFFF, 'b10100011);
-          ext_master_b_channel_recv(wr_resp);
-        join
-      end
-      begin
-        #1ns;
-        fork
-          ext_master_aw_channel_send('h40000000);
-          ext_master_w_channel_send('hFFFFFFFFFFFFFFFF, 'b01011100);
-          ext_master_b_channel_recv(wr_resp);
-        join
-      end
-      begin
-        #2ns;
-        fork
-          ext_master_aw_channel_send('h40000000);
-          ext_master_w_channel_send('h0, 'b01010101);
-          ext_master_b_channel_recv(wr_resp);
-        join
-      end
-    join
-
-    fork
-      ext_master_ar_channel_send('h40000000);
-      ext_master_r_channel_recv(rd_data, rd_resp);
-    join
-
-    $display("rd_data:0x%x", rd_data);
-
-    repeat (10) @(posedge xtal_i);
 
     $finish;
   end

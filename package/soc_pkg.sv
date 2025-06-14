@@ -1,5 +1,9 @@
 package soc_pkg;
 
+  parameter int XLEN = 64;
+  parameter int FB_DIV_WIDTH = 12;
+  parameter int TEMP_SENSOR_WIDTH = 10;
+
   parameter int NUM_CORE = 4;
   parameter int NUM_MASTERS = NUM_CORE + 1;
   parameter int NUM_SLAVES = 1;
@@ -36,7 +40,7 @@ package soc_pkg;
       MaxMstTrans: 1,
       MaxSlvTrans: 1,
       FallThrough: 0,
-      LatencyMode: axi_pkg::CUT_MST_PORTS,
+      LatencyMode: axi_pkg::CUT_ALL_PORTS,
       PipelineStages: 2,
       AxiIdWidthSlvPorts: NOC_M_ID_WIDTH,
       AxiIdUsedSlvPorts: NOC_M_ID_WIDTH,
