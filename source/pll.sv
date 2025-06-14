@@ -1,11 +1,11 @@
 module pll #(
     parameter int REF_DEV_WIDTH = 4,
-    parameter int FB_DEV_WIDTH  = 8
+    parameter int FB_DIV_WIDTH  = 8
 ) (
     input  logic                     arst_ni,
     input  logic                     clk_ref_i,
     input  logic [REF_DEV_WIDTH-1:0] refdiv_i,
-    input  logic [ FB_DEV_WIDTH-1:0] fbdiv_i,
+    input  logic [ FB_DIV_WIDTH-1:0] fbdiv_i,
     output logic                     clk_o,
     output logic                     locked_o
 );
@@ -19,7 +19,7 @@ module pll #(
   logic stable_cfg;
 
   logic [REF_DEV_WIDTH-1:0] refdiv_q;
-  logic [FB_DEV_WIDTH-1:0] fbdiv_q;
+  logic [FB_DIV_WIDTH-1:0] fbdiv_q;
 
   always_ff @(negedge clk_o or negedge arst_ni) begin
     if (~arst_ni) begin
@@ -43,7 +43,7 @@ module pll #(
   );
 
   clk_div #(
-      .DIV_WIDTH(FB_DEV_WIDTH)
+      .DIV_WIDTH(FB_DIV_WIDTH)
   ) u_fb_dev (
       .arst_ni(arst_ni),
       .div_i  (fbdiv_i),

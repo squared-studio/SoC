@@ -4,7 +4,6 @@ module soc_ctrl_csr #(
     parameter int          XLEN              = 64,
     parameter int          FB_DIV_WIDTH      = 12,
     parameter int          TEMP_SENSOR_WIDTH = 10,
-    parameter int          NUM_GPR           = 4,
     parameter type         req_t             = soc_pkg::s_req_t,
     parameter type         resp_t            = soc_pkg::s_resp_t
 ) (
@@ -19,17 +18,15 @@ module soc_ctrl_csr #(
     output logic [NUM_CORE-1:0]                        core_arst_vec_o,
     output logic [NUM_CORE-1:0][     FB_DIV_WIDTH-1:0] core_pll_fb_div_vec_o,
     input  logic [NUM_CORE-1:0]                        core_pll_locked_i,
-    input  logic [NUM_CORE-1:0][     FB_DIV_WIDTH-1:0] core_pll_fb_div_vec_i,
     input  logic [NUM_CORE-1:0][TEMP_SENSOR_WIDTH-1:0] core_temp_sensor_vec_i,
 
     output logic                    ram_clk_en_o,
     output logic                    ram_arst_o,
     output logic [FB_DIV_WIDTH-1:0] ram_pll_fb_div_o,
     input  logic                    ram_pll_locked_i,
-    input  logic [FB_DIV_WIDTH-1:0] ram_pll_fb_div_i,
 
-    output logic                        glob_arst_o,
-    input  logic [$clog2(NUM_CORE)-1:0] sys_pll_select_i
+    output logic                          glob_arst_o,
+    input  logic [$clog2(NUM_CORE+1)-1:0] sys_pll_select_i
 );
 
   // ######################## BOOT #######################
@@ -50,17 +47,8 @@ module soc_ctrl_csr #(
   // PLL FB DIV CORE_2 -------------------------- 0x410 RW
   // PLL FB DIV CORE_3 -------------------------- 0x418 RW
 
-  // ############### ACTUAL CORE PLL FB DIV ##############
-  // PLL FB DIV CORE_0 -------------------------- 0x600 RO
-  // PLL FB DIV CORE_1 -------------------------- 0x608 RO
-  // PLL FB DIV CORE_2 -------------------------- 0x610 RO
-  // PLL FB DIV CORE_3 -------------------------- 0x618 RO
-
   // ################## OTHER PLL FB DIV #################
-  // PLL FB DIV RAM ----------------------------- 0x800 RW
-
-  // ############## ACTUAL OTHER PLL FB DIV ##############
-  // PLL FB DIV RAM ----------------------------- 0x900 RO
+  // PLL FB DIV RAM ----------------------------- 0x600 RW
 
   // ################# CORE TEMP SENSORS #################
   // TEMP SENSORS CORE_0 ------------------------ 0xC00 RO
@@ -149,21 +137,10 @@ module soc_ctrl_csr #(
           default: mem_rresp_i = 2'b10;
         endcase
       end
-      // ACTUAL CORE PLL FB DIV --------------------------------------------------------------------
+      // OTHER PLL FB DIV --------------------------------------------------------------------------
       3'b011: begin
         case (mem_raddr_o[8:3])
-          0: mem_rdata_i = {'0, core_pll_fb_div_vec_i[0]};
-          1: mem_rdata_i = {'0, core_pll_fb_div_vec_i[1]};
-          2: mem_rdata_i = {'0, core_pll_fb_div_vec_i[2]};
-          3: mem_rdata_i = {'0, core_pll_fb_div_vec_i[3]};
-          default: mem_rresp_i = 2'b10;
-        endcase
-      end
-      // OTHER PLL FB DIV + ACTUAL -----------------------------------------------------------------
-      3'b100: begin
-        case (mem_raddr_o[8:3])
           0: mem_rdata_i = {'0, ram_pll_fb_div_o};
-          32: mem_rdata_i = {'0, ram_pll_fb_div_i};
           default: mem_rresp_i = 2'b10;
         endcase
       end
@@ -233,8 +210,8 @@ module soc_ctrl_csr #(
           default: mem_wresp_i = 2'b10;
         endcase
       end
-      // OTHER PLL FB DIV + ACTUAL -----------------------------------------------------------------
-      3'b100: begin
+      // OTHER PLL FB DIV --------------------------------------------------------------------------
+      3'b011: begin
         case (mem_waddr_o[8:3])
           0: mem_rdata_ = {'0, ram_pll_fb_div_o};
           default: mem_wresp_i = 2'b10;
@@ -302,8 +279,8 @@ module soc_ctrl_csr #(
             3: core_pll_fb_div_vec_o[3] <= mem_wdata_;
           endcase
         end
-        // OTHER PLL FB DIV + ACTUAL ---------------------------------------------------------------
-        3'b100: begin
+        // OTHER PLL FB DIV ------------------------------------------------------------------------
+        3'b011: begin
           case (mem_waddr_o[8:3])
             0: ram_pll_fb_div_o <= mem_wdata_;
           endcase
@@ -321,29 +298,5 @@ module soc_ctrl_csr #(
       endcase
     end
   end
-
-  // // TODO MAKE EXTERNAL
-
-  // logic [$clog2(NUM_CORE)-1:0]      sys_pll_select_next;
-
-  // always_comb begin
-  //   logic [FB_DIV_WIDTH-1:0] current_max_value;
-  //   current_max_value   = core_pll_fb_div_vec_i[0];
-  //   sys_pll_select_next = 0;
-  //   for (int i = 1; i < NUM_CORE; i++) begin
-  //     if (core_pll_fb_div_vec_i[i] > current_max_value) begin
-  //       current_max_value   = core_pll_fb_div_vec_i[i];
-  //       sys_pll_select_next = i;
-  //     end
-  //   end
-  // end
-
-  // always_ff @(posedge clk_i or negedge arst_ni) begin
-  //   if (~arst_ni) begin
-  //     sys_pll_select_i <= '0;
-  //   end else begin
-  //     sys_pll_select_i <= sys_pll_select_next;
-  //   end
-  // end
 
 endmodule

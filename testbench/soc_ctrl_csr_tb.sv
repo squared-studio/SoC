@@ -33,14 +33,12 @@ module soc_ctrl_csr_tb;
   logic    [        NUM_CORE-1:0]                        core_arst_vec_o;
   logic    [        NUM_CORE-1:0][     FB_DIV_WIDTH-1:0] core_pll_fb_div_vec_o;
   logic    [        NUM_CORE-1:0]                        core_pll_locked_i;
-  logic    [        NUM_CORE-1:0][     FB_DIV_WIDTH-1:0] core_pll_fb_div_vec_i;
   logic    [        NUM_CORE-1:0][TEMP_SENSOR_WIDTH-1:0] core_temp_sensor_vec_i;
 
   logic                                                  ram_clk_en_o;
   logic                                                  ram_arst_o;
   logic    [    FB_DIV_WIDTH-1:0]                        ram_pll_fb_div_o;
   logic                                                  ram_pll_locked_i;
-  logic    [    FB_DIV_WIDTH-1:0]                        ram_pll_fb_div_i;
 
   logic                                                  glob_arst_o;
   logic    [$clog2(NUM_CORE)-1:0]                        sys_pll_select_i;
@@ -55,7 +53,6 @@ module soc_ctrl_csr_tb;
       .XLEN             (XLEN),
       .FB_DIV_WIDTH     (FB_DIV_WIDTH),
       .TEMP_SENSOR_WIDTH(TEMP_SENSOR_WIDTH),
-      .NUM_GPR          (4),
       .req_t            (s_req_t),
       .resp_t           (s_resp_t)
   ) u_dut (
@@ -69,13 +66,11 @@ module soc_ctrl_csr_tb;
       .core_arst_vec_o,
       .core_pll_fb_div_vec_o,
       .core_pll_locked_i,
-      .core_pll_fb_div_vec_i,
       .core_temp_sensor_vec_i,
       .ram_clk_en_o,
       .ram_arst_o,
       .ram_pll_fb_div_o,
       .ram_pll_locked_i,
-      .ram_pll_fb_div_i,
       .glob_arst_o,
       .sys_pll_select_i
   );
@@ -90,10 +85,8 @@ module soc_ctrl_csr_tb;
     arst_ni <= '0;
     req_i <= '0;
     core_pll_locked_i <= '0;
-    core_pll_fb_div_vec_i <= '0;
     core_temp_sensor_vec_i <= '0;
     ram_pll_locked_i <= '0;
-    ram_pll_fb_div_i <= '0;
     sys_pll_select_i <= '0;
     #(duration);
     arst_ni <= '1;
@@ -189,45 +182,19 @@ module soc_ctrl_csr_tb;
     end
     $display("core_pll_fb_div_vec_o \033[1;32mOK\033[0m");
 
-    for (int i = 0; i < NUM_CORE; i++) begin
-      repeat (10) begin
-        logic [ 1:0] resp;
-        logic [63:0] rdata;
-        logic [63:0] wdata;
-        wdata = $urandom & (2 ** FB_DIV_WIDTH - 1);
-        core_pll_fb_div_vec_i[i] <= wdata;
-        csr_read_64('h10000600 + 8 * i, rdata, resp);
-        if (wdata !== rdata)
-          #100ns $fatal(1, "WDATA DOESN'T MATCH RDATA EXP:0x%x GOT:0x%x", wdata, rdata);
-      end
-    end
-    $display("core_pll_fb_div_vec_i \033[1;32mOK\033[0m");
-
     repeat (10) begin
       logic [ 1:0] resp;
       logic [63:0] rdata;
       logic [63:0] wdata;
       wdata = $urandom & (2 ** FB_DIV_WIDTH - 1);
-      csr_write_64('h10000800, wdata, resp);
-      csr_read_64('h10000800, rdata, resp);
+      csr_write_64('h10000600, wdata, resp);
+      csr_read_64('h10000600, rdata, resp);
       if (wdata !== rdata)
         #100ns $fatal(1, "WDATA DOESN'T MATCH RDATA EXP:0x%x GOT:0x%x", wdata, rdata);
       if (wdata !== ram_pll_fb_div_o)
         #100ns $fatal(1, "WDATA DOESN'T MATCH OUTPUT EXP:0x%x GOT:0x%x", wdata, ram_pll_fb_div_o);
     end
     $display("ram_pll_fb_div_o \033[1;32mOK\033[0m");
-
-    repeat (10) begin
-      logic [ 1:0] resp;
-      logic [63:0] rdata;
-      logic [63:0] wdata;
-      wdata = $urandom & (2 ** FB_DIV_WIDTH - 1);
-      ram_pll_fb_div_i <= wdata;
-      csr_read_64('h10000900, rdata, resp);
-      if (wdata !== rdata)
-        #100ns $fatal(1, "WDATA DOESN'T MATCH RDATA EXP:0x%x GOT:0x%x", wdata, rdata);
-    end
-    $display("ram_pll_fb_div_i \033[1;32mOK\033[0m");
 
     for (int i = 0; i < NUM_CORE; i++) begin
       repeat (10) begin

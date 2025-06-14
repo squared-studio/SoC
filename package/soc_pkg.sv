@@ -6,15 +6,16 @@ package soc_pkg;
 
   parameter int NUM_CORE = 4;
   parameter int NUM_MASTERS = NUM_CORE + 1;
-  parameter int NUM_SLAVES = 1;
+  parameter int NUM_SLAVES = 2;
+
+  parameter int SOC_CTRL_BASE = 'h10000000;
+  parameter int RAM_BASE = 'h40000000;
 
   localparam int NumXbarRules = 2;
   localparam axi_pkg::xbar_rule_64_t [NumXbarRules-1:0] XbarRule = '{
-      '{idx: 0, start_addr: 'h00000000, end_addr: 'h3FFFFFFF},
-      '{idx: 0, start_addr: 'h40000000, end_addr: 'h4007FFFF}
+      '{idx: 0, start_addr: (RAM_BASE), end_addr: (RAM_BASE + 'h1FFF_FFFF)},
+      '{idx: 1, start_addr: (SOC_CTRL_BASE), end_addr: (SOC_CTRL_BASE + 'hFFF)}
   };
-
-  parameter longint DM_BASE_ADDR = 'h40000000;
 
   parameter int NOC_M_ID_WIDTH = ariane_axi_pkg::IdWidth;
   parameter int NOC_S_ID_WIDTH = NOC_M_ID_WIDTH + $clog2(NUM_MASTERS);

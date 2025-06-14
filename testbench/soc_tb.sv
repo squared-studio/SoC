@@ -21,6 +21,9 @@ module soc_tb;
 
   logic    glob_arst_ni;
   logic    xtal_i;
+
+  logic    temp_ext_m_clk_o;
+  logic    temp_ext_m_arst_no;
   m_req_t  ext_m_req_i;
   m_resp_t ext_m_resp_o;
 
@@ -36,6 +39,8 @@ module soc_tb;
   soc u_soc (
       .glob_arst_ni,
       .xtal_i,
+      .temp_ext_m_clk_o,
+      .temp_ext_m_arst_no,
       .ext_m_req_i,
       .ext_m_resp_o,
       .ram_arst_no,
@@ -45,8 +50,8 @@ module soc_tb;
   );
 
   axi_ram #(
-      .MEM_BASE(0),
-      .MEM_SIZE(32),
+      .MEM_BASE(soc_pkg::RAM_BASE),
+      .MEM_SIZE(29),
       .req_t   (s_req_t),
       .resp_t  (s_resp_t)
   ) u_axi_ram (
@@ -81,19 +86,36 @@ module soc_tb;
     join_none
   endtask
 
-  `SIMPLE_AXI_M_DRIVER(ext_m, xtal_i, glob_arst_ni, ext_m_req_i, ext_m_resp_o)
+  `SIMPLE_AXI_M_DRIVER(ext_m, temp_ext_m_clk_o, temp_ext_m_arst_no, ext_m_req_i, ext_m_resp_o)
+  // task automatic ext_m_read_8(addr, data, resp);
+  // task automatic ext_m_write_8(addr, data, resp);
+  // task automatic ext_m_read_16(addr, data, resp);
+  // task automatic ext_m_write_16(addr, data, resp);
+  // task automatic ext_m_read_32(addr, data, resp);
+  // task automatic ext_m_write_32(addr, data, resp);
+  // task automatic ext_m_read_64(addr, data, resp);
+  // task automatic ext_m_write_64(addr, data, resp);
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
   // PROCEDURALS
   //////////////////////////////////////////////////////////////////////////////////////////////////
 
   initial begin
-    longint rd_data;
-    int wr_resp;
-    int rd_resp;
+    longint data;
+    int resp;
 
     apply_reset();
     start_clock();
+
+    #10us;
+
+    @(posedge temp_ext_m_clk_o);
+
+    ext_m_read_64('h10000000, data, resp);
+    $display("BV0:0x%x", data);
+    ext_m_write_64('h10000000, 'h1234567890ABCDEF, resp);
+    ext_m_read_64('h10000000, data, resp);
+    $display("BV0:0x%x", data);
 
     $finish;
   end

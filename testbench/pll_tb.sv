@@ -1,18 +1,18 @@
 module pll_tb;
 
   localparam int REF_DEV_WIDTH = 4;
-  localparam int FB_DEV_WIDTH = 8;
+  localparam int FB_DIV_WIDTH = 8;
 
   logic                     arst_ni;
   logic                     clk_ref_i;
   logic [REF_DEV_WIDTH-1:0] refdiv_i;
-  logic [ FB_DEV_WIDTH-1:0] fbdiv_i;
+  logic [ FB_DIV_WIDTH-1:0] fbdiv_i;
   logic                     clk_o;
   logic                     locked_o;
 
   pll #(
       .REF_DEV_WIDTH(4),
-      .FB_DEV_WIDTH (8)
+      .FB_DIV_WIDTH (8)
   ) u_pll (
       .arst_ni,
       .clk_ref_i,

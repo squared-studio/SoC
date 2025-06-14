@@ -10,36 +10,44 @@
 *                             ExtRam
 */
 
-module soc
-  import soc_pkg::m_req_t;
-  import soc_pkg::m_resp_t;
-  import soc_pkg::s_req_t;
-  import soc_pkg::s_resp_t;
-(
-    input  logic    glob_arst_ni,
-    input  logic    xtal_i,
-    input  m_req_t  ext_m_req_i,
-    output m_resp_t ext_m_resp_o,
+module soc (
+    input logic glob_arst_ni,
+    input logic xtal_i,
 
-    output logic    ram_arst_no,
-    output logic    ram_clk_o,
-    output s_req_t  ram_req_o,
-    input  s_resp_t ram_resp_i
+    output logic temp_ext_m_clk_o,
+    output logic temp_ext_m_arst_no,
+
+    input  soc_pkg::m_req_t  ext_m_req_i,
+    output soc_pkg::m_resp_t ext_m_resp_o,
+
+    output logic             ram_arst_no,
+    output logic             ram_clk_o,
+    output soc_pkg::s_req_t  ram_req_o,
+    input  soc_pkg::s_resp_t ram_resp_i
 );
 
-  m_req_t  [soc_pkg::NUM_MASTERS-1:0] m_req;
-  m_resp_t [soc_pkg::NUM_MASTERS-1:0] m_resp;
-  s_req_t  [ soc_pkg::NUM_SLAVES-1:0] s_req;
-  s_resp_t [ soc_pkg::NUM_SLAVES-1:0] s_resp;
+  soc_pkg::m_req_t [soc_pkg::NUM_MASTERS-1:0] m_req;
+  soc_pkg::m_resp_t [soc_pkg::NUM_MASTERS-1:0] m_resp;
+  soc_pkg::s_req_t [soc_pkg::NUM_SLAVES-1:0] s_req;
+  soc_pkg::s_resp_t [soc_pkg::NUM_SLAVES-1:0] s_resp;
 
-  assign m_req[4]     = ext_m_req_i;
-  assign ext_m_resp_o = m_resp[4];
+  logic sys_clk;
+  logic sys_arst_ni;
 
-  assign ram_req_o    = s_req[0];
-  assign s_resp[0]    = ram_resp_i;
+  logic [soc_pkg::NUM_CORE-1:0][soc_pkg::XLEN-1:0] boot_addr_vec;
+  logic [soc_pkg::NUM_CORE-1:0][soc_pkg::XLEN-1:0] hart_id_vec;
 
-  assign ram_arst_no  = glob_arst_ni;
-  assign ram_clk_o    = xtal_i;
+  logic [soc_pkg::NUM_CORE-1:0] core_clk_vec;
+  logic [soc_pkg::NUM_CORE-1:0] core_arst_vec_n;
+
+  assign m_req[4]           = ext_m_req_i;
+  assign ext_m_resp_o       = m_resp[4];
+
+  assign ram_req_o          = s_req[0];
+  assign s_resp[0]          = ram_resp_i;
+
+  assign temp_ext_m_clk_o   = sys_clk;
+  assign temp_ext_m_arst_no = sys_arst_ni;
 
   axi_xbar #(
       .Cfg          (soc_pkg::XbarConfig),
@@ -60,8 +68,8 @@ module soc
       .mst_resp_t   (soc_pkg::s_resp_t),
       .rule_t       (axi_pkg::xbar_rule_64_t)
   ) u_xbar (
-      .clk_i(xtal_i),
-      .rst_ni(glob_arst_ni),
+      .clk_i(sys_clk),
+      .rst_ni(sys_arst_ni),
       .test_i('0),
       .slv_ports_req_i(m_req),
       .slv_ports_resp_o(m_resp),
@@ -73,22 +81,45 @@ module soc
   );
 
   for (genvar core = 0; core < soc_pkg::NUM_CORE; core++) begin : g_cores
-    // ariane #(
-    //     .DmBaseAddress(soc_pkg::DM_BASE_ADDR),
-    //     .CachedAddrBeg(soc_pkg::DM_BASE_ADDR)
-    // ) u_core_0 (
-    //     .clk_i(xtal_i),
-    //     .rst_ni(glob_arst_ni),
-    //     .boot_addr_i((longint'('h40000000 + 'h20000 * core))),
-    //     .hart_id_i(longint'(core)),
-    //     .irq_i('0),
-    //     .ipi_i('0),
-    //     .time_irq_i('0),
-    //     .debug_req_i('0),
-    //     .axi_req_o(m_req[core]),
-    //     .axi_resp_i(m_resp[core])
-    // );
-    assign m_req[core] = '0;
+    ariane #(
+        .DmBaseAddress(soc_pkg::RAM_BASE),
+        .CachedAddrBeg(soc_pkg::RAM_BASE)
+    ) u_core_0 (
+        .clk_i(core_clk_vec[core]),
+        .rst_ni(core_arst_vec_n[core]),
+        .boot_addr_i(boot_addr_vec[core]),
+        .hart_id_i(hart_id_vec[core]),
+        .irq_i('0),  // TODO
+        .ipi_i('0),  // TODO
+        .time_irq_i('0),  // TODO
+        .debug_req_i('0),  // TODO
+        .axi_req_o(m_req[core]),
+        .axi_resp_i(m_resp[core])
+    );
   end
+
+  soc_ctrl #(
+      .NUM_CORE         (soc_pkg::NUM_CORE),
+      .MEM_BASE         (soc_pkg::SOC_CTRL_BASE),
+      .XLEN             (soc_pkg::XLEN),
+      .FB_DIV_WIDTH     (soc_pkg::FB_DIV_WIDTH),
+      .TEMP_SENSOR_WIDTH(soc_pkg::TEMP_SENSOR_WIDTH),
+      .req_t            (soc_pkg::s_req_t),
+      .resp_t           (soc_pkg::s_resp_t)
+  ) u_soc_ctrl (
+      .xtal_i,
+      .sys_clk_o(sys_clk),
+      .req_i(s_req[1]),
+      .resp_o(s_resp[1]),
+      .boot_addr_vec_o(boot_addr_vec),
+      .hart_id_vec_o(hart_id_vec),
+      .core_clk_vec_o(core_clk_vec),
+      .core_arst_vec_no(core_arst_vec_n),
+      .core_temp_sensor_vec_i('0),  // TODO
+      .ram_clk_o,
+      .ram_arst_no,
+      .glob_arst_ni,
+      .glob_arst_no(sys_arst_ni)
+  );
 
 endmodule
