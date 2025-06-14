@@ -1,30 +1,33 @@
 module soc_ctrl_csr #(
-    parameter int          NUM_CORES    = 4,
-    parameter logic [63:0] MEM_BASE     = 0,
-    parameter int          XLEN         = 64,
-    parameter int          FB_DIV_WIDTH = 12,
-    parameter int          NUM_GPR      = 4,
-    parameter type         req_t        = soc_pkg::s_req_t,
-    parameter type         resp_t       = soc_pkg::s_resp_t
+    parameter int          NUM_CORES         = 4,
+    parameter logic [63:0] MEM_BASE          = 0,
+    parameter int          XLEN              = 64,
+    parameter int          FB_DIV_WIDTH      = 12,
+    parameter int          TEMP_SENSOR_WIDTH = 12,
+    parameter int          NUM_GPR           = 4,
+    parameter type         req_t             = soc_pkg::s_req_t,
+    parameter type         resp_t            = soc_pkg::s_resp_t
 ) (
     input  logic  clk_i,
     input  logic  arst_ni,
     input  req_t  req_i,
     output resp_t resp_o,
 
-    output logic [NUM_CORES-1:0][        XLEN-1:0] boot_addr_vec_o,
-    output logic [NUM_CORES-1:0][        XLEN-1:0] hart_id_vec_o,
-    output logic [NUM_CORES-1:0]                   core_clk_en_o,
-    output logic [NUM_CORES-1:0]                   core_arst_o,
-    output logic [NUM_CORES-1:0][FB_DIV_WIDTH-1:0] core_pll_fb_div_vec_o,
-    input  logic [NUM_CORES-1:0]                   core_pll_locked_i,
-    input  logic [NUM_CORES-1:0][FB_DIV_WIDTH-1:0] core_pll_fb_div_vec_i,
+    output logic [NUM_CORES-1:0][             XLEN-1:0] boot_addr_vec_o,
+    output logic [NUM_CORES-1:0][             XLEN-1:0] hart_id_vec_o,
+    output logic [NUM_CORES-1:0]                        core_clk_en_o,
+    output logic [NUM_CORES-1:0]                        core_arst_o,
+    output logic [NUM_CORES-1:0][     FB_DIV_WIDTH-1:0] core_pll_fb_div_vec_o,
+    input  logic [NUM_CORES-1:0]                        core_pll_locked_i,
+    input  logic [NUM_CORES-1:0][     FB_DIV_WIDTH-1:0] core_pll_fb_div_vec_i,
+    input  logic [NUM_CORES-1:0][TEMP_SENSOR_WIDTH-1:0] core_temp_sensor_vec_i,
 
     output logic [FB_DIV_WIDTH-1:0] ram_pll_fb_div_o,
     input  logic                    ram_pll_locked_i,
     input  logic [FB_DIV_WIDTH-1:0] ram_pll_fb_div_i,
 
-    output logic glob_arst_o,
+    output logic                         glob_arst_o,
+    output logic [$clog2(NUM_CORES)-1:0] sys_pll_select_o,
 
     output logic [NUM_GPR-1:0] grp_o
 );
@@ -63,26 +66,32 @@ module soc_ctrl_csr #(
   // CORE PLL LOCKED ---------------------------- 0xE00 RO
   // OTHER PLL LOCKED --------------------------- 0xE08 RO
   // CORE CLOCK ENABLE -------------------------- 0xE10 RW
+  // OTHER CLOCK ENABLE ------------------------- 0xE18 RW /// NOT IMPLEMENTED YET
   // CORE RESET --------------------------------- 0xE20 RW
+  // OTHER RESET -------------------------------- 0xE28 RW /// NOT IMPLEMENTED YET
   // SOFTWARE GLOBAL RESET ---------------------- 0xE30 RW
+  // SYSTEM PLL SELECT -------------------------- 0xE38 RO
+  // CORE TEMP SENSORS -------------------------- 0xE40 RO
   // REG0 --------------------------------------- 0xFE0 RW
   // REG1 --------------------------------------- 0xFE8 RW
   // REG2 --------------------------------------- 0xFF0 RW
   // REG3 --------------------------------------- 0xFF8 RW
 
-  logic             mem_we_o;
-  logic [11:0]      mem_waddr_o;
-  logic [ 7:0][7:0] mem_wdata_o;
-  logic [ 7:0]      mem_wstrb_o;
-  logic [ 1:0]      mem_wresp_i;
+  logic                              mem_we_o;
+  logic [                 11:0]      mem_waddr_o;
+  logic [                  7:0][7:0] mem_wdata_o;
+  logic [                  7:0]      mem_wstrb_o;
+  logic [                  1:0]      mem_wresp_i;
 
-  logic             mem_re_o;
-  logic [11:0]      mem_raddr_o;
-  logic [ 7:0][7:0] mem_rdata_i;
-  logic [ 1:0]      mem_rresp_i;
+  logic                              mem_re_o;
+  logic [                 11:0]      mem_raddr_o;
+  logic [                  7:0][7:0] mem_rdata_i;
+  logic [                  1:0]      mem_rresp_i;
 
-  logic [ 7:0][7:0] mem_rdata_;
-  logic [ 7:0][7:0] mem_wdata_;
+  logic [                  7:0][7:0] mem_rdata_;
+  logic [                  7:0][7:0] mem_wdata_;
+
+  logic [$clog2(NUM_CORES)-1:0]      sys_pll_select_next;
 
   axi_to_simple_if #(
       .axi_req_t (req_t),
@@ -171,6 +180,8 @@ module soc_ctrl_csr #(
           2: mem_rdata_i = {'0, core_clk_en_o};
           4: mem_rdata_i = {'0, core_arst_o};
           6: mem_rdata_i = {'0, glob_arst_o};
+          7: mem_rdata_i = {'0, sys_pll_select_o};
+          8: mem_rdata_i = {'0, core_temp_sensor_vec_i};
           60: mem_rdata_i = grp_o[0];
           61: mem_rdata_i = grp_o[1];
           62: mem_rdata_i = grp_o[2];
@@ -311,5 +322,24 @@ module soc_ctrl_csr #(
     end
   end
 
+  always_comb begin
+    logic [FB_DIV_WIDTH-1:0] current_max_value;
+    current_max_value   = core_pll_fb_div_vec_i[0];
+    sys_pll_select_next = 0;
+    for (int i = 1; i < NUM_CORES; i++) begin
+      if (core_pll_fb_div_vec_i[i] > current_max_value) begin
+        current_max_value   = core_pll_fb_div_vec_i[i];
+        sys_pll_select_next = i;
+      end
+    end
+  end
+
+  always_ff @(posedge clk_i or negedge arst_ni) begin
+    if (~arst_ni) begin
+      sys_pll_select_o <= '0;
+    end else begin
+      sys_pll_select_o <= sys_pll_select_next;
+    end
+  end
 
 endmodule

@@ -4,20 +4,13 @@ package soc_pkg;
   parameter int NUM_MASTERS = NUM_CORE + 1;
   parameter int NUM_SLAVES = 1;
 
-  localparam int NumXbarRules = 1;
+  localparam int NumXbarRules = 2;
   localparam axi_pkg::xbar_rule_64_t [NumXbarRules-1:0] XbarRule = '{
+      '{idx: 0, start_addr: 'h00000000, end_addr: 'h3FFFFFFF},
       '{idx: 0, start_addr: 'h40000000, end_addr: 'h4007FFFF}
   };
 
-  parameter longint DM_BASE_ADDR = '0;
-
-  parameter longint ROM_BASE = 'h7FFF_0000;
-  parameter longint ROM_SIZE = 16;
-
-  parameter longint RAM_BASE = '0;
-  parameter longint RAM_SIZE = 31;
-
-  parameter longint CACHEABLE_ADDR_START = 'h8000_0000;
+  parameter longint DM_BASE_ADDR = 'h40000000;
 
   parameter int NOC_M_ID_WIDTH = ariane_axi_pkg::IdWidth;
   parameter int NOC_S_ID_WIDTH = NOC_M_ID_WIDTH + $clog2(NUM_MASTERS);
@@ -36,5 +29,21 @@ package soc_pkg;
   `AXI_TYPEDEF_ALL(s, logic [NOC_ADDR_WIDTH-1:0], logic [NOC_S_ID_WIDTH-1:0],
                    logic [NOC_DATA_WIDTH-1:0], logic [NOC_DATA_WIDTH/8-1:0],
                    logic [NOC_USER_WIDTH-1:0])
+
+  localparam axi_pkg::xbar_cfg_t XbarConfig = '{
+      NoSlvPorts : NUM_MASTERS,
+      NoMstPorts : NUM_SLAVES,
+      MaxMstTrans: 1,
+      MaxSlvTrans: 1,
+      FallThrough: 0,
+      LatencyMode: axi_pkg::CUT_MST_PORTS,
+      PipelineStages: 2,
+      AxiIdWidthSlvPorts: NOC_M_ID_WIDTH,
+      AxiIdUsedSlvPorts: NOC_M_ID_WIDTH,
+      UniqueIds: 1,
+      AxiAddrWidth: NOC_ADDR_WIDTH,
+      AxiDataWidth: NOC_DATA_WIDTH,
+      NoAddrRules: NumXbarRules
+  };
 
 endpackage

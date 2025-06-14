@@ -1,5 +1,4 @@
-module clk_mux #(
-) (
+module clk_mux (
     input  logic arst_ni,
     input  logic sel_i,
     input  logic clk0_i,

@@ -3,7 +3,7 @@
 ####################################################################################################
 
 # Define the top module
-TOP ?= ariane_tb
+TOP ?= soc_tb
 
 # Get the root directory
 ROOT_DIR = $(shell echo $(realpath .))

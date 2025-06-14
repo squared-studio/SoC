@@ -35,8 +35,8 @@ module ariane_tb;
   //////////////////////////////////////////////////////////////////////////////////////////////////
 
   ariane #(
-      .DmBaseAddress(0),
-      .CachedAddrBeg('h80000000)
+      .DmBaseAddress('h40000000),
+      .CachedAddrBeg('h40000000)
   ) u_core (
       .clk_i(clk),
       .rst_ni(rst_n),
@@ -51,7 +51,7 @@ module ariane_tb;
   );
 
   axi_ram #(
-      .MEM_BASE(0),
+      .MEM_BASE('0),
       .MEM_SIZE(32),
       .req_t   (ariane_axi_pkg::m_req_t),
       .resp_t  (ariane_axi_pkg::m_resp_t)
@@ -144,21 +144,21 @@ module ariane_tb;
   endtask
 
   function automatic bit [63:0] get_gpr(input [4:0] index);
-    return ariane_tb.u_core.issue_stage_i.i_issue_read_operands.i_ariane_regfile.mem[index];
+    return u_core.issue_stage_i.i_issue_read_operands.i_ariane_regfile.mem[index];
   endfunction
 
   function automatic void set_gpr(input [4:0] index, input bit [63:0] data);
     if (index != 0)
-      ariane_tb.u_core.issue_stage_i.i_issue_read_operands.i_ariane_regfile.mem[index] = data;
+      u_core.issue_stage_i.i_issue_read_operands.i_ariane_regfile.mem[index] = data;
   endfunction
 
   function automatic bit [63:0] get_fpr(input [4:0] index);
-    return ariane_tb.u_core.issue_stage_i.i_issue_read_operands.float_regfile_gen.i_ariane_fp_regfile.mem[index];
+    return u_core.issue_stage_i.i_issue_read_operands.float_regfile_gen.i_ariane_fp_regfile.mem[index];
   endfunction
 
   function automatic void set_fpr(input [4:0] index, input bit [63:0] data);
     if (index != 0)
-      ariane_tb.u_core.issue_stage_i.i_issue_read_operands.float_regfile_gen.i_ariane_fp_regfile.mem[index] = data;
+      u_core.issue_stage_i.i_issue_read_operands.float_regfile_gen.i_ariane_fp_regfile.mem[index] = data;
   endfunction
 
   // Task to wait for the test to exit
