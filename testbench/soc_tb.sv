@@ -131,6 +131,7 @@ module soc_tb;
 
   initial begin
 
+    // TODO REPLACE WITH MASS STORAGE
     logic [7:0][7:0] hex_data_to_load[longint];
 
     hex_data_to_load.delete();
@@ -174,17 +175,29 @@ module soc_tb;
     apply_reset();
     start_clock();
 
-    // begin
-    //   longint data;
-    //   int resp;
-    //   #10us;
-    //   @(posedge temp_ext_m_clk_o);
-    //   ext_m_write_64('h10000600, 3200, resp);
-    //   $display("BV0:0x%x", data);
-    //   ext_m_write_64('h10000000, 'h1234567890ABCDEF, resp);
-    //   ext_m_read_64('h10000000, data, resp);
-    //   $display("BV0:0x%x", data);
-    // end
+    $display("\033[1;33mTOTAL %0d 64b writes", hex_data_to_load.size());
+    // TODO REPLACE WITH BOOTROM
+    begin
+      bit [1:0] resp;
+      @(posedge temp_ext_m_clk_o);
+      $display("\033[1;33mtemp_ext_m_clk_o active\033[0m");
+      ext_m_write_64('h10000600, 3200, resp);  // ram freq
+      ext_m_write_64('h10000E18, 1, resp);  // ram clk en
+      foreach (hex_data_to_load[i]) begin
+        fork
+          ext_m_write_64(i, hex_data_to_load[i], resp);
+        join_none
+        @(posedge temp_ext_m_clk_o);
+        hex_data_to_load.delete(i);
+        if (hex_data_to_load.size() % 1024 == 0) begin
+          $display("%0d write remains ", hex_data_to_load.size());
+        end
+      end
+      ext_m_write_64('h10000E18, 1, resp);  // ram clk en
+      $display("\033[1;33mINSTRUCTIONS LOADED\033[0m");
+    end
+
+    #1us;
 
     $finish;
   end
