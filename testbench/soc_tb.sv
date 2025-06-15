@@ -33,6 +33,13 @@ module soc_tb;
   s_resp_t ram_resp_i;
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
+  // VARIABLES
+  //////////////////////////////////////////////////////////////////////////////////////////////////
+
+  string core_test_name [soc_pkg::NUM_CORE];
+  logic [63:0] test_symbols[int][string];
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////
   // INSTANCIATIONS
   //////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -96,26 +103,87 @@ module soc_tb;
   // task automatic ext_m_read_64(addr, data, resp);
   // task automatic ext_m_write_64(addr, data, resp);
 
+  function automatic void load_symbols(string filename, int index);
+    int file, r;
+    string line;
+    string key;
+    int value;
+    file = $fopen(filename, "r");
+    if (file == 0) begin
+      $display("Error: Could not open file %s", filename);
+      $finish;
+    end
+    while (!$feof(
+        file
+    )) begin
+      r = $fgets(line, file);
+      if (r != 0) begin
+        r = $sscanf(line, "%h %*s %s", value, key);
+        test_symbols[index][key] = value;
+      end
+    end
+    $fclose(file);
+  endfunction
+
   //////////////////////////////////////////////////////////////////////////////////////////////////
   // PROCEDURALS
   //////////////////////////////////////////////////////////////////////////////////////////////////
 
   initial begin
-    longint data;
-    int resp;
+
+    logic [7:0][7:0] hex_data_to_load[longint];
+
+    hex_data_to_load.delete();
+
+    `define LOAD_PROGRAM_SOC_TB(__IDX__)                                                           \
+      if ($value$plusargs(`"CORE``__IDX__``_STANDALONE=%s`", core_test_name[``__IDX__``])) begin   \
+        logic [7:0] mem [longint];                                                                 \
+        $display(`"\033[0;35mCORE``__IDX__``_STANDALONE : %s\033[0m`",                             \
+          core_test_name[``__IDX__``]);                                                            \
+          mem.delete();                                                                            \
+          $readmemh(`"prog_``__IDX__``.hex`", mem);                                                \
+          foreach (mem[addr]) begin                                                                \
+            hex_data_to_load[addr & 'h7FFFFFF8][addr & 'h7] = mem[addr];                           \
+          end                                                                                      \
+          load_symbols(`"prog_``__IDX__``.sym`", ``__IDX__``);                                     \
+      end else begin                                                                               \
+        core_test_name[``__IDX__``] = "";                                                          \
+      end                                                                                          \
+
+
+    `LOAD_PROGRAM_SOC_TB(0)
+    `LOAD_PROGRAM_SOC_TB(1)
+    `LOAD_PROGRAM_SOC_TB(2)
+    `LOAD_PROGRAM_SOC_TB(3)
+
+    `undef LOAD_PROGRAM_SOC_TB
+
+    $display("\033[0;33m---------HEX_DATA_TO_LOAD---------\033[0m");
+    foreach (hex_data_to_load[i]) begin
+      $write("\033[0;33m@%08x:\033[0m", i);
+      for (int j = 0; j < 8; j++) $write(" %02x", hex_data_to_load[i][j]);
+      $display();
+    end
+    $display("\033[0;33m----------------------------------\033[0m");
+
+    foreach (test_symbols[idx,sym]) begin
+      $display("\033[0;33m@%08x:\033[0m %0d:%s", test_symbols[idx][sym], idx, sym);
+    end
 
     apply_reset();
     start_clock();
 
-    #10us;
-
-    @(posedge temp_ext_m_clk_o);
-
-    ext_m_write_64('h10000600, 3200, resp);
-    $display("BV0:0x%x", data);
-    ext_m_write_64('h10000000, 'h1234567890ABCDEF, resp);
-    ext_m_read_64('h10000000, data, resp);
-    $display("BV0:0x%x", data);
+    // begin
+    //   longint data;
+    //   int resp;
+    //   #10us;
+    //   @(posedge temp_ext_m_clk_o);
+    //   ext_m_write_64('h10000600, 3200, resp);
+    //   $display("BV0:0x%x", data);
+    //   ext_m_write_64('h10000000, 'h1234567890ABCDEF, resp);
+    //   ext_m_read_64('h10000000, data, resp);
+    //   $display("BV0:0x%x", data);
+    // end
 
     $finish;
   end

@@ -122,19 +122,19 @@ endif
 ifeq ($(TOP), soc_tb)
 ifneq ($(T0), )
 	@make -s test HARTID=0 TEST=$(T0)
-	@echo "--testplusarg CORE0_STANDALONE=1" >> build/xsim_args
+	@echo "--testplusarg CORE0_STANDALONE=$(T0)" >> build/xsim_args
 endif
 ifneq ($(T1), )
 	@make -s test HARTID=1 TEST=$(T1)
-	@echo "--testplusarg CORE1_STANDALONE=1" >> build/xsim_args
+	@echo "--testplusarg CORE1_STANDALONE=$(T1)" >> build/xsim_args
 endif
 ifneq ($(T2), )
 	@make -s test HARTID=2 TEST=$(T2)
-	@echo "--testplusarg CORE2_STANDALONE=1" >> build/xsim_args
+	@echo "--testplusarg CORE2_STANDALONE=$(T2)" >> build/xsim_args
 endif
 ifneq ($(T3), )
 	@make -s test HARTID=3 TEST=$(T3)
-	@echo "--testplusarg CORE3_STANDALONE=1" >> build/xsim_args
+	@echo "--testplusarg CORE3_STANDALONE=$(T3)" >> build/xsim_args
 endif
 endif
 
