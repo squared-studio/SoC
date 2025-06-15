@@ -75,9 +75,11 @@ _start:
     addi x30, x29, -1
 
     la x31, tohost
+    fence
     sw x0, 0(x31)
-
     addi x31, x30, -1
+    fence
+
 
 loop:
     j loop

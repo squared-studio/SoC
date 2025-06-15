@@ -140,7 +140,10 @@ endif
 
 .PHONY: simulate
 simulate: build/build_$(TOP) common_sim_checks
-	@$(eval log_file_name := $(shell echo "$(TOP)_$(TEST).txt" | sed "s/\//___/g"))
+ifeq ($(TOP), soc_tb)
+	@$(eval TEST := $(T0)_$(T1)_$(T2)_$(T3))
+endif
+	@$(eval log_file_name := $(shell echo "$(TOP)_$(TEST).txt" | sed "s/\//-/g"))
 	@cd build; xsim $(TOP) -f xsim_args -runall -log ../log/$(log_file_name)
 
 .PHONY: simulate_gui

@@ -27,8 +27,10 @@ print_loop:
 
 end_program:
     li a0, 0
+    fence
     la t0, tohost
     sw a0, 0(t0)
+    fence
 
 _forever_loop:
     j _forever_loop

@@ -7,7 +7,7 @@
 ci_simulate () {
   start_time=$(date +%s)
   echo -n -e " $(date +%x\ %H:%M:%S) - \033[1;33mSIMULATING $1 $2... \033[0m"
-  make simulate TOP=$1 TEST=$2 > /dev/null 2>&1
+  make simulate TOP=$1 $2 $3 $4 $5 $6 $7 $8 $9 > /dev/null 2>&1
   end_time=$(date +%s)
   time_diff=$((end_time - start_time))
   echo -e "\033[1;32mDone!\033[0m ($time_diff seconds)"
@@ -30,17 +30,17 @@ echo -e "\033[1;32mDone!\033[0m ($time_diff seconds)"
 # SIMULATE
 ################################################################################
 
-ci_simulate clk_div_tb default
+ci_simulate clk_div_tb
 
-ci_simulate ariane_tb generic/gpr.s
-ci_simulate ariane_tb generic/stdout.s
+ci_simulate ariane_tb TEST=generic/gpr.s
+ci_simulate ariane_tb TEST=generic/stdout.s
 
-ci_simulate ariane_tb rv32i/addi.s
-ci_simulate ariane_tb rv32i/sb.s
-ci_simulate ariane_tb rv32i/sh.s
-ci_simulate ariane_tb rv32i/sw.s
+ci_simulate ariane_tb TEST=rv32i/addi.s
+ci_simulate ariane_tb TEST=rv32i/sb.s
+ci_simulate ariane_tb TEST=rv32i/sh.s
+ci_simulate ariane_tb TEST=rv32i/sw.s
 
-ci_simulate soc default # REMOVE LATER
+ci_simulate soc_tb
 
 ################################################################################
 # COLLECT & PRINT

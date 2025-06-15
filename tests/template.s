@@ -12,8 +12,10 @@ _start:
 .section .text
 .align 3
 _exit:
+    fence
     la t0, tohost
     sw a0, 0(t0)
+    fence
 
 .section .text
 .align 3

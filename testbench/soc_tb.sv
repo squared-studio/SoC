@@ -158,16 +158,17 @@ module soc_tb;
 
     `undef LOAD_PROGRAM_SOC_TB
 
-    $display("\033[0;33m---------HEX_DATA_TO_LOAD---------\033[0m");
-    foreach (hex_data_to_load[i]) begin
-      $write("\033[0;33m@%08x:\033[0m", i);
-      for (int j = 0; j < 8; j++) $write(" %02x", hex_data_to_load[i][j]);
-      $display();
-    end
-    $display("\033[0;33m----------------------------------\033[0m");
-
-    foreach (test_symbols[idx,sym]) begin
-      $display("\033[0;33m@%08x:\033[0m %0d:%s", test_symbols[idx][sym], idx, sym);
+    if ($test$plusargs("DEBUG")) begin
+      $display("\033[0;33m---------HEX_DATA_TO_LOAD---------\033[0m");
+      foreach (hex_data_to_load[i]) begin
+        $write("\033[0;33m@%08x:\033[0m", i);
+        for (int j = 0; j < 8; j++) $write(" %02x", hex_data_to_load[i][j]);
+        $display();
+      end
+      $display("\033[0;33m----------------------------------\033[0m");
+      foreach (test_symbols[idx, sym]) begin
+        $display("\033[0;33m@%08x:\033[0m %0d:%s", test_symbols[idx][sym], idx, sym);
+      end
     end
 
     apply_reset();

@@ -16,8 +16,10 @@ _start:
     addi   t6,  zero,   1232
     addi   a0,  zero,   0
 
+    fence
     la t0, tohost
     sw a0, 0(t0)
+    fence
 
 _forever_loop:
     j _forever_loop
