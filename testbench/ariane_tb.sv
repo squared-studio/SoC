@@ -251,10 +251,6 @@ module ariane_tb;
       $dumpvars(0, ariane_tb);
     end
 
-    // Load simulation memory and symbols
-    load_memory("prog.hex");
-    load_symbols("prog.sym");
-
     if ($value$plusargs("TEST=%s", test_name)) begin
       $display("\033[0;35mTEST           : %s\033[0m", test_name);
     end else begin
@@ -266,6 +262,10 @@ module ariane_tb;
     end else begin
       $fatal(1, "HARTID NOT PROVIDED");
     end
+
+    // Load simulation memory and symbols
+    load_memory($sformatf("prog_%0d.hex", hart_id));
+    load_symbols($sformatf("prog_%0d.sym", hart_id));
 
     // Set boot address to the start of the program
     if (sym.exists("putchar_stdout")) begin

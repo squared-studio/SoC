@@ -114,9 +114,29 @@ ENV_BUILD:
 
 .PHONY: common_sim_checks
 common_sim_checks: log
-	@if [ "$(TOP)" = "ariane_tb" ]; then make -s test HARTID=${HARTID}; fi
 	@echo "--testplusarg TEST=$(TEST)" > build/xsim_args
+ifeq ($(TOP), ariane_tb)
+	@make -s test HARTID=${HARTID}
 	@echo "--testplusarg HARTID=$(HARTID)" >> build/xsim_args
+endif
+ifeq ($(TOP), soc_tb)
+ifneq ($(T0), )
+	@make -s test HARTID=0 TEST=$(T0)
+	@echo "--testplusarg CORE0_STANDALONE=1" >> build/xsim_args
+endif
+ifneq ($(T1), )
+	@make -s test HARTID=1 TEST=$(T1)
+	@echo "--testplusarg CORE1_STANDALONE=1" >> build/xsim_args
+endif
+ifneq ($(T2), )
+	@make -s test HARTID=2 TEST=$(T2)
+	@echo "--testplusarg CORE2_STANDALONE=1" >> build/xsim_args
+endif
+ifneq ($(T3), )
+	@make -s test HARTID=3 TEST=$(T3)
+	@echo "--testplusarg CORE3_STANDALONE=1" >> build/xsim_args
+endif
+endif
 
 .PHONY: simulate
 simulate: build/build_$(TOP) common_sim_checks
@@ -142,10 +162,9 @@ RV64G_GCC := riscv64-unknown-elf-gcc -march=rv64g -nostdlib -nostartfiles
 test: build
 	@if [ -z ${TEST} ]; then echo -e "\033[1;31mTEST is not set\033[0m"; exit 1; fi
 	@if [ ! -f ${TEST_REPO}/$(TEST) ]; then echo -e "\033[1;31m${TEST_REPO}/$(TEST) does not exist\033[0m"; exit 1; fi
-	@$(eval TEST_TYPE := $(shell echo "$(TEST)" | sed "s/.*\.//g"))
-	@echo -e "\033[1;33mLinker: core_${HARTID}.ld\033[0m"
-	@$(RV64G_GCC) -o build/prog.elf ${TEST_REPO}/$(TEST) -T linkers/core_$(HARTID).ld
-	@riscv64-unknown-elf-objcopy -O verilog build/prog.elf build/prog.hex
-	@riscv64-unknown-elf-nm build/prog.elf > build/prog.sym
-	@riscv64-unknown-elf-objdump -d build/prog.elf > build/prog.dump
+	@echo -e "\033[1;33mLinker: core_${HARTID}.ld with ${TEST}\033[0m"
+	@$(RV64G_GCC) -o build/prog_${HARTID}.elf ${TEST_REPO}/$(TEST) -T linkers/core_$(HARTID).ld
+	@riscv64-unknown-elf-objcopy -O verilog build/prog_${HARTID}.elf build/prog_${HARTID}.hex
+	@riscv64-unknown-elf-nm build/prog_${HARTID}.elf > build/prog_${HARTID}.sym
+	@riscv64-unknown-elf-objdump -d build/prog_${HARTID}.elf > build/prog_${HARTID}.dump
 
