@@ -6,8 +6,8 @@
 *         |                     XBAR                     |
 *         |                                              |
 *         *----------------------------------------------*
-*                               |
-*                             ExtRam
+*                           |        |
+*                        soc_ctrl  ExtRam
 */
 
 module soc (
@@ -31,6 +31,9 @@ module soc (
   soc_pkg::s_req_t [soc_pkg::NUM_SLAVES-1:0] s_req;
   soc_pkg::s_resp_t [soc_pkg::NUM_SLAVES-1:0] s_resp;
 
+  soc_pkg::m_req_t [soc_pkg::NUM_CORE-1:0] core_req;
+  soc_pkg::m_resp_t [soc_pkg::NUM_CORE-1:0] core_resp;
+
   logic sys_clk;
   logic sys_arst_ni;
 
@@ -40,14 +43,46 @@ module soc (
   logic [soc_pkg::NUM_CORE-1:0] core_clk_vec;
   logic [soc_pkg::NUM_CORE-1:0] core_arst_vec_n;
 
-  assign m_req[4]           = ext_m_req_i;
-  assign ext_m_resp_o       = m_resp[4];
-
-  assign ram_req_o          = s_req[0];
-  assign s_resp[0]          = ram_resp_i;
-
   assign temp_ext_m_clk_o   = sys_clk;
   assign temp_ext_m_arst_no = sys_arst_ni;
+
+  axi_cdc #(
+      .aw_chan_t (soc_pkg::m_aw_chan_t),
+      .w_chan_t  (soc_pkg::m_w_chan_t),
+      .b_chan_t  (soc_pkg::m_b_chan_t),
+      .ar_chan_t (soc_pkg::m_ar_chan_t),
+      .r_chan_t  (soc_pkg::m_r_chan_t),
+      .axi_req_t (soc_pkg::m_req_t),
+      .axi_resp_t(soc_pkg::m_resp_t)
+  ) u_cdc_ext_m_xbar (
+      .src_clk_i (temp_ext_m_clk_o),
+      .src_rst_ni(sys_arst_ni),
+      .src_req_i (ext_m_req_i),
+      .src_resp_o(ext_m_resp_o),
+      .dst_clk_i (sys_clk),
+      .dst_rst_ni(sys_arst_ni),
+      .dst_req_o (m_req[4]),
+      .dst_resp_i(m_resp[4])
+  );
+
+  axi_cdc #(
+      .aw_chan_t (soc_pkg::s_aw_chan_t),
+      .w_chan_t  (soc_pkg::s_w_chan_t),
+      .b_chan_t  (soc_pkg::s_b_chan_t),
+      .ar_chan_t (soc_pkg::s_ar_chan_t),
+      .r_chan_t  (soc_pkg::s_r_chan_t),
+      .axi_req_t (soc_pkg::s_req_t),
+      .axi_resp_t(soc_pkg::s_resp_t)
+  ) u_cdc_xbar_ram (
+      .src_clk_i (sys_clk),
+      .src_rst_ni(sys_arst_ni),
+      .src_req_i (s_req[0]),
+      .src_resp_o(s_resp[0]),
+      .dst_clk_i (ram_clk_o),
+      .dst_rst_ni(sys_arst_ni),
+      .dst_req_o (ram_req_o),
+      .dst_resp_i(ram_resp_i)
+  );
 
   axi_xbar #(
       .Cfg          (soc_pkg::XbarConfig),
@@ -93,8 +128,29 @@ module soc (
         .ipi_i('0),  // TODO
         .time_irq_i('0),  // TODO
         .debug_req_i('0),  // TODO
-        .axi_req_o(m_req[core]),
-        .axi_resp_i(m_resp[core])
+        .axi_req_o(core_req[core]),
+        .axi_resp_i(core_resp[core])
+    );
+  end
+
+  for (genvar core = 0; core < soc_pkg::NUM_CORE; core++) begin : g_core_cdc
+    axi_cdc #(
+        .aw_chan_t (soc_pkg::m_aw_chan_t),
+        .w_chan_t  (soc_pkg::m_w_chan_t),
+        .b_chan_t  (soc_pkg::m_b_chan_t),
+        .ar_chan_t (soc_pkg::m_ar_chan_t),
+        .r_chan_t  (soc_pkg::m_r_chan_t),
+        .axi_req_t (soc_pkg::m_req_t),
+        .axi_resp_t(soc_pkg::m_resp_t)
+    ) u_cdc_core_xbar (
+        .src_clk_i (core_clk_vec[core]),
+        .src_rst_ni(sys_arst_ni),
+        .src_req_i (core_req[core]),
+        .src_resp_o(core_resp[core]),
+        .dst_clk_i (sys_clk),
+        .dst_rst_ni(sys_arst_ni),
+        .dst_req_o (m_req[core]),
+        .dst_resp_i(m_resp[core])
     );
   end
 
