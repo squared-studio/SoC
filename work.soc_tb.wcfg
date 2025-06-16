@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="work.soc_tb.wdb" id="1">
+         <top_modules>
+            <top_module name="ariane_axi_pkg" />
+            <top_module name="ariane_pkg" />
+            <top_module name="axi_pkg" />
+            <top_module name="cf_math_pkg" />
+            <top_module name="config_pkg" />
+            <top_module name="defs_div_sqrt_mvp" />
+            <top_module name="dm" />
+            <top_module name="fpnew_pkg" />
+            <top_module name="riscv_pkg" />
+            <top_module name="soc_pkg" />
+            <top_module name="soc_tb" />
+            <top_module name="std_cache_pkg" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="52,085.000 ns"></ZoomStartTime>
+      <ZoomEndTime time="56,330.001 ns"></ZoomEndTime>
+      <Cursor1Time time="55,620.000 ns"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="238"></NameColumnWidth>
+      <ValueColumnWidth column_width="189"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="3" />
+   <wvobject fp_name="group38" type="group">
+      <obj_property name="label">soc_ctrl</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <obj_property name="isExpanded"></obj_property>
+      <wvobject fp_name="/soc_tb/u_soc/u_soc_ctrl/xtal_i" type="logic">
+         <obj_property name="ElementShortName">xtal_i</obj_property>
+         <obj_property name="ObjectShortName">xtal_i</obj_property>
+      </wvobject>
+      <wvobject fp_name="/soc_tb/u_soc/u_soc_ctrl/sys_clk_o" type="logic">
+         <obj_property name="ElementShortName">sys_clk_o</obj_property>
+         <obj_property name="ObjectShortName">sys_clk_o</obj_property>
+      </wvobject>
+      <wvobject fp_name="/soc_tb/u_soc/u_soc_ctrl/req_i" type="array">
+         <obj_property name="ElementShortName">req_i</obj_property>
+         <obj_property name="ObjectShortName">req_i</obj_property>
+      </wvobject>
+      <wvobject fp_name="/soc_tb/u_soc/u_soc_ctrl/resp_o" type="array">
+         <obj_property name="ElementShortName">resp_o</obj_property>
+         <obj_property name="ObjectShortName">resp_o</obj_property>
+      </wvobject>
+      <wvobject fp_name="/soc_tb/u_soc/u_soc_ctrl/boot_addr_vec_o" type="array">
+         <obj_property name="ElementShortName">boot_addr_vec_o[3:0][63:0]</obj_property>
+         <obj_property name="ObjectShortName">boot_addr_vec_o[3:0][63:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/soc_tb/u_soc/u_soc_ctrl/hart_id_vec_o" type="array">
+         <obj_property name="ElementShortName">hart_id_vec_o[3:0][63:0]</obj_property>
+         <obj_property name="ObjectShortName">hart_id_vec_o[3:0][63:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/soc_tb/u_soc/u_soc_ctrl/core_clk_vec_o" type="array">
+         <obj_property name="ElementShortName">core_clk_vec_o[3:0]</obj_property>
+         <obj_property name="ObjectShortName">core_clk_vec_o[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/soc_tb/u_soc/u_soc_ctrl/core_arst_vec_no" type="array">
+         <obj_property name="ElementShortName">core_arst_vec_no[3:0]</obj_property>
+         <obj_property name="ObjectShortName">core_arst_vec_no[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/soc_tb/u_soc/u_soc_ctrl/core_temp_sensor_vec_i" type="array">
+         <obj_property name="ElementShortName">core_temp_sensor_vec_i[3:0][9:0]</obj_property>
+         <obj_property name="ObjectShortName">core_temp_sensor_vec_i[3:0][9:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/soc_tb/u_soc/u_soc_ctrl/ram_clk_o" type="logic">
+         <obj_property name="ElementShortName">ram_clk_o</obj_property>
+         <obj_property name="ObjectShortName">ram_clk_o</obj_property>
+      </wvobject>
+      <wvobject fp_name="/soc_tb/u_soc/u_soc_ctrl/ram_arst_no" type="logic">
+         <obj_property name="ElementShortName">ram_arst_no</obj_property>
+         <obj_property name="ObjectShortName">ram_arst_no</obj_property>
+      </wvobject>
+      <wvobject fp_name="/soc_tb/u_soc/u_soc_ctrl/glob_arst_ni" type="logic">
+         <obj_property name="ElementShortName">glob_arst_ni</obj_property>
+         <obj_property name="ObjectShortName">glob_arst_ni</obj_property>
+      </wvobject>
+      <wvobject fp_name="/soc_tb/u_soc/u_soc_ctrl/glob_arst_no" type="logic">
+         <obj_property name="ElementShortName">glob_arst_no</obj_property>
+         <obj_property name="ObjectShortName">glob_arst_no</obj_property>
+      </wvobject>
+      <wvobject fp_name="/soc_tb/u_soc/u_soc_ctrl/core_clk_en_vec" type="array">
+         <obj_property name="ElementShortName">core_clk_en_vec[3:0]</obj_property>
+         <obj_property name="ObjectShortName">core_clk_en_vec[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/soc_tb/u_soc/u_soc_ctrl/core_arst_vec" type="array">
+         <obj_property name="ElementShortName">core_arst_vec[3:0]</obj_property>
+         <obj_property name="ObjectShortName">core_arst_vec[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/soc_tb/u_soc/u_soc_ctrl/core_pll_fb_div_vec_o" type="array">
+         <obj_property name="ElementShortName">core_pll_fb_div_vec_o[3:0][11:0]</obj_property>
+         <obj_property name="ObjectShortName">core_pll_fb_div_vec_o[3:0][11:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/soc_tb/u_soc/u_soc_ctrl/core_pll_locked" type="array">
+         <obj_property name="ElementShortName">core_pll_locked[3:0]</obj_property>
+         <obj_property name="ObjectShortName">core_pll_locked[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/soc_tb/u_soc/u_soc_ctrl/ram_clk_en" type="logic">
+         <obj_property name="ElementShortName">ram_clk_en</obj_property>
+         <obj_property name="ObjectShortName">ram_clk_en</obj_property>
+      </wvobject>
+      <wvobject fp_name="/soc_tb/u_soc/u_soc_ctrl/ram_arst" type="logic">
+         <obj_property name="ElementShortName">ram_arst</obj_property>
+         <obj_property name="ObjectShortName">ram_arst</obj_property>
+      </wvobject>
+      <wvobject fp_name="/soc_tb/u_soc/u_soc_ctrl/ram_pll_fb_div_o" type="array">
+         <obj_property name="ElementShortName">ram_pll_fb_div_o[11:0]</obj_property>
+         <obj_property name="ObjectShortName">ram_pll_fb_div_o[11:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/soc_tb/u_soc/u_soc_ctrl/ram_pll_locked" type="logic">
+         <obj_property name="ElementShortName">ram_pll_locked</obj_property>
+         <obj_property name="ObjectShortName">ram_pll_locked</obj_property>
+      </wvobject>
+      <wvobject fp_name="/soc_tb/u_soc/u_soc_ctrl/glob_arst" type="logic">
+         <obj_property name="ElementShortName">glob_arst</obj_property>
+         <obj_property name="ObjectShortName">glob_arst</obj_property>
+      </wvobject>
+      <wvobject fp_name="/soc_tb/u_soc/u_soc_ctrl/sys_pll_select" type="array">
+         <obj_property name="ElementShortName">sys_pll_select[2:0]</obj_property>
+         <obj_property name="ObjectShortName">sys_pll_select[2:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/soc_tb/u_soc/u_soc_ctrl/sys_pll_select_next" type="array">
+         <obj_property name="ElementShortName">sys_pll_select_next[2:0]</obj_property>
+         <obj_property name="ObjectShortName">sys_pll_select_next[2:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/soc_tb/u_soc/u_soc_ctrl/core_clk_vec_pll" type="array">
+         <obj_property name="ElementShortName">core_clk_vec_pll[3:0]</obj_property>
+         <obj_property name="ObjectShortName">core_clk_vec_pll[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/soc_tb/u_soc/u_soc_ctrl/ram_clk_pll" type="logic">
+         <obj_property name="ElementShortName">ram_clk_pll</obj_property>
+         <obj_property name="ObjectShortName">ram_clk_pll</obj_property>
+      </wvobject>
+      <wvobject fp_name="/soc_tb/u_soc/u_soc_ctrl/filtered_core_clk_vec_pll" type="array">
+         <obj_property name="ElementShortName">filtered_core_clk_vec_pll[3:0]</obj_property>
+         <obj_property name="ObjectShortName">filtered_core_clk_vec_pll[3:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/soc_tb/u_soc/u_soc_ctrl/filtered_ram_clk_pll" type="logic">
+         <obj_property name="ElementShortName">filtered_ram_clk_pll</obj_property>
+         <obj_property name="ObjectShortName">filtered_ram_clk_pll</obj_property>
+      </wvobject>
+      <wvobject fp_name="/soc_tb/u_soc/u_soc_ctrl/clk_l0" type="logic">
+         <obj_property name="ElementShortName">clk_l0</obj_property>
+         <obj_property name="ObjectShortName">clk_l0</obj_property>
+      </wvobject>
+      <wvobject fp_name="/soc_tb/u_soc/u_soc_ctrl/clk_l1" type="logic">
+         <obj_property name="ElementShortName">clk_l1</obj_property>
+         <obj_property name="ObjectShortName">clk_l1</obj_property>
+      </wvobject>
+      <wvobject fp_name="/soc_tb/u_soc/u_soc_ctrl/clk_l2" type="logic">
+         <obj_property name="ElementShortName">clk_l2</obj_property>
+         <obj_property name="ObjectShortName">clk_l2</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="group1510" type="group">
+      <obj_property name="label">core0</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/soc_tb/u_soc/\g_cores[0].u_core_0 /clk_i" type="logic">
+         <obj_property name="ElementShortName">clk_i</obj_property>
+         <obj_property name="ObjectShortName">clk_i</obj_property>
+      </wvobject>
+      <wvobject fp_name="/soc_tb/u_soc/\g_cores[0].u_core_0 /rst_ni" type="logic">
+         <obj_property name="ElementShortName">rst_ni</obj_property>
+         <obj_property name="ObjectShortName">rst_ni</obj_property>
+      </wvobject>
+      <wvobject fp_name="/soc_tb/u_soc/\g_cores[0].u_core_0 /boot_addr_i" type="array">
+         <obj_property name="ElementShortName">boot_addr_i[63:0]</obj_property>
+         <obj_property name="ObjectShortName">boot_addr_i[63:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/soc_tb/u_soc/\g_cores[0].u_core_0 /hart_id_i" type="array">
+         <obj_property name="ElementShortName">hart_id_i[63:0]</obj_property>
+         <obj_property name="ObjectShortName">hart_id_i[63:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/soc_tb/u_soc/\g_cores[0].u_core_0 /irq_i" type="array">
+         <obj_property name="ElementShortName">irq_i[1:0]</obj_property>
+         <obj_property name="ObjectShortName">irq_i[1:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/soc_tb/u_soc/\g_cores[0].u_core_0 /ipi_i" type="logic">
+         <obj_property name="ElementShortName">ipi_i</obj_property>
+         <obj_property name="ObjectShortName">ipi_i</obj_property>
+      </wvobject>
+      <wvobject fp_name="/soc_tb/u_soc/\g_cores[0].u_core_0 /time_irq_i" type="logic">
+         <obj_property name="ElementShortName">time_irq_i</obj_property>
+         <obj_property name="ObjectShortName">time_irq_i</obj_property>
+      </wvobject>
+      <wvobject fp_name="/soc_tb/u_soc/\g_cores[0].u_core_0 /debug_req_i" type="logic">
+         <obj_property name="ElementShortName">debug_req_i</obj_property>
+         <obj_property name="ObjectShortName">debug_req_i</obj_property>
+      </wvobject>
+      <wvobject fp_name="/soc_tb/u_soc/\g_cores[0].u_core_0 /axi_req_o" type="array">
+         <obj_property name="ElementShortName">axi_req_o</obj_property>
+         <obj_property name="ObjectShortName">axi_req_o</obj_property>
+      </wvobject>
+      <wvobject fp_name="/soc_tb/u_soc/\g_cores[0].u_core_0 /axi_resp_i" type="array">
+         <obj_property name="ElementShortName">axi_resp_i</obj_property>
+         <obj_property name="ObjectShortName">axi_resp_i</obj_property>
+      </wvobject>
+   </wvobject>
+   <wvobject fp_name="group1525" type="group">
+      <obj_property name="label">pll_vco</obj_property>
+      <obj_property name="DisplayName">label</obj_property>
+      <wvobject fp_name="/soc_tb/u_soc/u_soc_ctrl/u_pll_ram/u_vco/arst_ni" type="logic">
+         <obj_property name="ElementShortName">arst_ni</obj_property>
+         <obj_property name="ObjectShortName">arst_ni</obj_property>
+      </wvobject>
+      <wvobject fp_name="/soc_tb/u_soc/u_soc_ctrl/u_pll_ram/u_vco/freq_incr_i" type="logic">
+         <obj_property name="ElementShortName">freq_incr_i</obj_property>
+         <obj_property name="ObjectShortName">freq_incr_i</obj_property>
+      </wvobject>
+      <wvobject fp_name="/soc_tb/u_soc/u_soc_ctrl/u_pll_ram/u_vco/freq_decr_i" type="logic">
+         <obj_property name="ElementShortName">freq_decr_i</obj_property>
+         <obj_property name="ObjectShortName">freq_decr_i</obj_property>
+      </wvobject>
+      <wvobject fp_name="/soc_tb/u_soc/u_soc_ctrl/u_pll_ram/u_vco/stable_cfg" type="logic">
+         <obj_property name="ElementShortName">stable_cfg</obj_property>
+         <obj_property name="ObjectShortName">stable_cfg</obj_property>
+      </wvobject>
+      <wvobject fp_name="/soc_tb/u_soc/u_soc_ctrl/u_pll_ram/u_vco/clk_o" type="logic">
+         <obj_property name="ElementShortName">clk_o</obj_property>
+         <obj_property name="ObjectShortName">clk_o</obj_property>
+      </wvobject>
+      <wvobject fp_name="/soc_tb/u_soc/u_soc_ctrl/u_pll_ram/u_vco/locked_o" type="logic">
+         <obj_property name="ElementShortName">locked_o</obj_property>
+         <obj_property name="ObjectShortName">locked_o</obj_property>
+      </wvobject>
+      <wvobject fp_name="/soc_tb/u_soc/u_soc_ctrl/u_pll_ram/u_vco/clk_half_period" type="other">
+         <obj_property name="ElementShortName">clk_half_period</obj_property>
+         <obj_property name="ObjectShortName">clk_half_period</obj_property>
+      </wvobject>
+      <wvobject fp_name="/soc_tb/u_soc/u_soc_ctrl/u_pll_ram/u_vco/last_clk_tick" type="other">
+         <obj_property name="ElementShortName">last_clk_tick</obj_property>
+         <obj_property name="ObjectShortName">last_clk_tick</obj_property>
+      </wvobject>
+      <wvobject fp_name="/soc_tb/u_soc/u_soc_ctrl/u_pll_ram/u_vco/incr_ok" type="logic">
+         <obj_property name="ElementShortName">incr_ok</obj_property>
+         <obj_property name="ObjectShortName">incr_ok</obj_property>
+      </wvobject>
+      <wvobject fp_name="/soc_tb/u_soc/u_soc_ctrl/u_pll_ram/u_vco/decr_ok" type="logic">
+         <obj_property name="ElementShortName">decr_ok</obj_property>
+         <obj_property name="ObjectShortName">decr_ok</obj_property>
+      </wvobject>
+      <wvobject fp_name="/soc_tb/u_soc/u_soc_ctrl/u_pll_ram/u_vco/locked_internal" type="logic">
+         <obj_property name="ElementShortName">locked_internal</obj_property>
+         <obj_property name="ObjectShortName">locked_internal</obj_property>
+      </wvobject>
+      <wvobject fp_name="/soc_tb/u_soc/u_soc_ctrl/u_pll_ram/u_vco/locked_array" type="array">
+         <obj_property name="ElementShortName">locked_array[15:0]</obj_property>
+         <obj_property name="ObjectShortName">locked_array[15:0]</obj_property>
+      </wvobject>
+      <wvobject fp_name="/soc_tb/u_soc/u_soc_ctrl/u_pll_ram/u_vco/MIN_CLK_HALF_PERIOD" type="other">
+         <obj_property name="ElementShortName">MIN_CLK_HALF_PERIOD</obj_property>
+         <obj_property name="ObjectShortName">MIN_CLK_HALF_PERIOD</obj_property>
+      </wvobject>
+      <wvobject fp_name="/soc_tb/u_soc/u_soc_ctrl/u_pll_ram/u_vco/MAX_CLK_HALF_PERIOD" type="other">
+         <obj_property name="ElementShortName">MAX_CLK_HALF_PERIOD</obj_property>
+         <obj_property name="ObjectShortName">MAX_CLK_HALF_PERIOD</obj_property>
+      </wvobject>
+   </wvobject>
+</wave_config>

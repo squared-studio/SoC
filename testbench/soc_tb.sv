@@ -233,13 +233,17 @@ module soc_tb;
             ext_m_write_64('h10000200 + 8 * i, i, resp);
           join_none
           @(posedge temp_ext_m_clk_o);
+          fork
+            ext_m_write_64('h10000400 + 8 * i, 4000, resp);
+          join_none
+          @(posedge temp_ext_m_clk_o);
           clk_en_vec[i] = '1;
         end
       end
       ext_m_write_64('h10000E10, clk_en_vec, resp);
     end
 
-    #1us;
+    #50us;
 
     $finish;
   end
