@@ -160,13 +160,20 @@ module soc_tb;
     `undef LOAD_PROGRAM_SOC_TB
 
     if ($test$plusargs("DEBUG")) begin
-      $display("\033[0;33m---------HEX_DATA_TO_LOAD---------\033[0m");
+      automatic int addr;
+      addr = -1;
+      $write("\033[0;33m--------------- HEX_DATA_TO_LOAD --------------\033[0m");
       foreach (hex_data_to_load[i]) begin
-        $write("\033[0;33m@%08x:\033[0m", i);
-        for (int j = 0; j < 8; j++) $write(" %02x", hex_data_to_load[i][j]);
-        $display();
+        if (addr != i) begin
+          $display("\n@%08x", i);
+          if (i & 'h08) $write("xx xx xx xx xx xx xx xx ");
+        end
+        for (int j = 0; j < 8; j++) $write("%02x ", hex_data_to_load[i][j]);
+        addr = i + 8;
+        if (i & 'h08) $display();
       end
-      $display("\033[0;33m----------------------------------\033[0m");
+      if (addr & 'h08) $display();
+      $display("\033[0;33m-----------------------------------------------\033[0m");
       foreach (test_symbols[idx, sym]) begin
         $display("\033[0;33m@%08x:\033[0m %0d:%s", test_symbols[idx][sym], idx, sym);
       end
