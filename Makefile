@@ -23,6 +23,8 @@ TEST_REPO := tests
 
 HARTID := $(shell shuf -i 0-3 -n 1)
 
+DEBUG ?= 0
+
 ####################################################################################################
 # PACKAGE LISTS
 ####################################################################################################
@@ -115,6 +117,9 @@ ENV_BUILD:
 .PHONY: common_sim_checks
 common_sim_checks: log
 	@echo "--testplusarg TEST=$(TEST)" > build/xsim_args
+ifneq ($(DEBUG), 0)
+	@echo "--testplusarg DEBUG=1" >> build/xsim_args
+endif
 ifeq ($(TOP), ariane_tb)
 	@make -s test HARTID=${HARTID}
 	@echo "--testplusarg HARTID=$(HARTID)" >> build/xsim_args

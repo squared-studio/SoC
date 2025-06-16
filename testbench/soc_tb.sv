@@ -131,10 +131,9 @@ module soc_tb;
 
   initial begin
 
-    // TODO REPLACE WITH MASS STORAGE
-    logic [7:0][7:0] hex_data_to_load[longint];
+    logic [7:0] MEM[longint];
 
-    hex_data_to_load.delete();
+    MEM.delete();
 
     `define LOAD_PROGRAM_SOC_TB(__IDX__)                                                           \
       if ($value$plusargs(`"CORE``__IDX__``_STANDALONE=%s`", core_test_name[``__IDX__``])) begin   \
@@ -143,9 +142,7 @@ module soc_tb;
           core_test_name[``__IDX__``]);                                                            \
           mem.delete();                                                                            \
           $readmemh(`"prog_``__IDX__``.hex`", mem);                                                \
-          foreach (mem[addr]) begin                                                                \
-            hex_data_to_load[addr & 'h7FFFFFF8][addr & 'h7] = mem[addr];                           \
-          end                                                                                      \
+          foreach (mem[addr]) MEM[addr & 'h7FFFFFFF] = mem[addr];                                  \
           load_symbols(`"prog_``__IDX__``.sym`", ``__IDX__``);                                     \
       end else begin                                                                               \
         core_test_name[``__IDX__``] = "";                                                          \
@@ -160,34 +157,48 @@ module soc_tb;
     `undef LOAD_PROGRAM_SOC_TB
 
     if ($test$plusargs("DEBUG")) begin
-      automatic int addr;
+      int addr;
+      int cnt;
       addr = -1;
-      $write("\033[0;33m--------------- HEX_DATA_TO_LOAD --------------\033[0m");
-      foreach (hex_data_to_load[i]) begin
+      cnt  = 0;
+      $display("\033[0;33m--------------- HEX_DATA_TO_LOAD --------------\033[0m");
+      foreach (MEM[i]) begin
         if (addr != i) begin
-          $display("\n@%08x", i);
-          if (i & 'h08) $write("xx xx xx xx xx xx xx xx ");
+          if (cnt != 0) $display();
+          $display("@%08x", i);
+          cnt = 0;
         end
-        for (int j = 0; j < 8; j++) $write("%02x ", hex_data_to_load[i][j]);
-        addr = i + 8;
-        if (i & 'h08) $display();
+        $write("%02x", MEM[i]);
+        if (cnt == 15) begin
+          $write("\n");
+          cnt = 0;
+        end else begin
+          $write(" ");
+          cnt++;
+        end
+        addr = i + 1;
       end
-      if (addr & 'h08) $display();
+      if (cnt != 0) $display();
       $display("\033[0;33m-----------------------------------------------\033[0m");
       foreach (test_symbols[idx, sym]) begin
-        $display("\033[0;33m@%08x:\033[0m %0d:%s", test_symbols[idx][sym], idx, sym);
+        $display("\033[0;33m@%08x:\033[0m %s(%0d)", test_symbols[idx][sym], sym, idx);
       end
     end
 
     apply_reset();
     start_clock();
 
-    $display("\033[1;33mTOTAL %0d 64b writes", hex_data_to_load.size());
     // TODO REPLACE WITH BOOTROM
     begin
+      logic [7:0][7:0] hex_data_to_load[longint];
       bit [1:0] resp;
+      hex_data_to_load.delete();
+      foreach (MEM[addr]) begin
+        hex_data_to_load[addr&'h7FFFFFF8][addr&'h7] = MEM[addr];
+      end
+      $display("\033[0;33mTOTAL %0d 64b writes", hex_data_to_load.size());
       @(posedge temp_ext_m_clk_o);
-      $display("\033[1;33mtemp_ext_m_clk_o active\033[0m");
+      $display("\033[0;33mtemp_ext_m_clk_o active\033[0m");
       ext_m_write_64('h10000600, 3200, resp);  // ram freq
       ext_m_write_64('h10000E18, 1, resp);  // ram clk en
       foreach (hex_data_to_load[i]) begin
@@ -201,7 +212,31 @@ module soc_tb;
         end
       end
       ext_m_write_64('h10000E18, 1, resp);  // ram clk en
-      $display("\033[1;33mINSTRUCTIONS LOADED\033[0m");
+      $display("\033[0;33mINSTRUCTIONS LOADED\033[0m");
+    end
+
+    MEM.delete();
+
+    begin
+      bit [ 1:0] resp;
+      bit [63:0] clk_en_vec;
+      clk_en_vec = '0;
+      foreach (test_symbols[i]) begin
+        if (test_symbols[i].exists("_start")) begin
+          $display("\033[0;35mCORE%0d_BOOTADDR   : 0x%08x\033[0m", i, test_symbols[i]["_start"]);
+          $display("\033[0;35mCORE%0d_TOHOST     : 0x%08x\033[0m", i, test_symbols[i]["tohost"]);
+          fork
+            ext_m_write_64('h10000000 + 8 * i, test_symbols[i]["_start"], resp);
+          join_none
+          @(posedge temp_ext_m_clk_o);
+          fork
+            ext_m_write_64('h10000200 + 8 * i, i, resp);
+          join_none
+          @(posedge temp_ext_m_clk_o);
+          clk_en_vec[i] = '1;
+        end
+      end
+      ext_m_write_64('h10000E10, clk_en_vec, resp);
     end
 
     #1us;
