@@ -10,7 +10,6 @@ module clk_div #(
   logic [DIV_WIDTH-1:0] counter_q;
   logic [DIV_WIDTH-1:0] counter_n;
   logic                 toggle_en;
-  logic                 clk_no;
 
   always_comb toggle_en = (counter_q == '0);
 
