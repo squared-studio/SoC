@@ -10,18 +10,18 @@ module pll #(
     output logic                     locked_o
 );
 
-  logic divided_clk_ref;
-  logic divided_clk_fb;
+  logic    [REF_DEV_WIDTH-1:0] refdiv_q;
+  logic    [ FB_DIV_WIDTH-1:0] fbdiv_q;
 
-  logic freq_incr;
-  logic freq_decr;
+  logic                        stable;
 
-  logic stable_cfg;
+  realtime                     ref_clk_tick = 0;
+  realtime                     timeperiod = 1us;
 
-  logic [REF_DEV_WIDTH-1:0] refdiv_q;
-  logic [FB_DIV_WIDTH-1:0] fbdiv_q;
+  logic                        internal_lock;
+  logic    [             15:0] lock_array;
 
-  always_ff @(negedge clk_o or negedge arst_ni) begin
+  always_ff @(posedge clk_ref_i or negedge arst_ni) begin
     if (~arst_ni) begin
       refdiv_q <= '0;
       fbdiv_q  <= '0;
@@ -31,41 +31,47 @@ module pll #(
     end
   end
 
-  assign stable_cfg = (refdiv_q == refdiv_i) & (fbdiv_q == fbdiv_i);
+  always_comb stable = arst_ni & (refdiv_q == refdiv_i) & (fbdiv_q == fbdiv_i);
 
-  clk_div #(
-      .DIV_WIDTH(REF_DEV_WIDTH)
-  ) u_ref_dev (
-      .arst_ni(arst_ni),
-      .div_i  (refdiv_i),
-      .clk_i  (clk_ref_i),
-      .clk_o  (divided_clk_ref)
-  );
+  always_ff @(posedge clk_o or negedge stable) begin
+    if (~stable) begin
+      lock_array <= '0;
+    end else begin
+      lock_array <= {lock_array[14:0], internal_lock};
+    end
+  end
 
-  clk_div #(
-      .DIV_WIDTH(FB_DIV_WIDTH)
-  ) u_fb_dev (
-      .arst_ni(arst_ni),
-      .div_i  (fbdiv_i),
-      .clk_i  (clk_o),
-      .clk_o  (divided_clk_fb)
-  );
+  always_comb locked_o = lock_array[15];
 
-  phase_detector u_pd (
-      .arst_ni    (arst_ni),
-      .clk_ref_i  (divided_clk_ref),
-      .clk_pll_i  (divided_clk_fb),
-      .freq_incr_o(freq_incr),
-      .freq_decr_o(freq_decr)
-  );
+  always_ff @(clk_ref_i or negedge arst_ni) begin
+    if (~arst_ni) begin
+      timeperiod = 1us;
+      internal_lock = '0;
+    end else begin
+      realtime target_timeperiod;
+      target_timeperiod = $realtime - ref_clk_tick;
+      if (refdiv_i) target_timeperiod = target_timeperiod * unsigned'(refdiv_i);
+      if (fbdiv_i) target_timeperiod = target_timeperiod / unsigned'(fbdiv_i);
+      if (target_timeperiod > 500us) target_timeperiod = 500us;
+      if (target_timeperiod < 50ps) target_timeperiod = 50ps;
+      if (timeperiod < target_timeperiod)
+        timeperiod = timeperiod * 0.97 + 0.03 * target_timeperiod + 1ps;
+      else timeperiod = timeperiod * 0.97 + 0.03 * target_timeperiod - 1ps;
+      if (((timeperiod - target_timeperiod) > -10ps) && ((timeperiod - target_timeperiod) < 10ps))
+        internal_lock = '1;
+      else internal_lock = '0;
+    end
+    ref_clk_tick = $realtime;
+  end
 
-  vco u_vco (
-      .arst_ni(arst_ni),
-      .freq_incr_i(freq_incr),
-      .freq_decr_i(freq_decr),
-      .stable_cfg(stable_cfg),
-      .clk_o(clk_o),
-      .locked_o(locked_o)
-  );
+  initial begin
+    clk_o <= '0;
+    forever begin
+      if (arst_ni) clk_o <= '1;
+      #(timeperiod);
+      clk_o <= '0;
+      #(timeperiod);
+    end
+  end
 
 endmodule

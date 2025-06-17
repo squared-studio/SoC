@@ -1,7 +1,7 @@
 module pll_tb;
 
-  localparam int REF_DEV_WIDTH = 4;
-  localparam int FB_DIV_WIDTH = 8;
+  localparam int REF_DEV_WIDTH = 5;
+  localparam int FB_DIV_WIDTH = 12;
 
   logic                     arst_ni;
   logic                     clk_ref_i;
@@ -11,8 +11,8 @@ module pll_tb;
   logic                     locked_o;
 
   pll #(
-      .REF_DEV_WIDTH(4),
-      .FB_DIV_WIDTH (8)
+      .REF_DEV_WIDTH(REF_DEV_WIDTH),
+      .FB_DIV_WIDTH (FB_DIV_WIDTH)
   ) u_pll (
       .arst_ni,
       .clk_ref_i,
@@ -43,27 +43,21 @@ module pll_tb;
     fork
       forever begin
         clk_ref_i <= ~clk_ref_i;
-        #5ns;
+        #62.5ns;
       end
     join_none
 
-    #1ms;
+    #500us;
 
-    refdiv_i <= 2;
+    refdiv_i <= 16;
 
-    #1ms;
+    fbdiv_i <= 3200;
 
-    fbdiv_i <= 2;
+    #2ms;
 
-    #1ms;
+    fbdiv_i <= 4000;
 
-    fbdiv_i <= 4;
-
-    #1ms;
-
-    refdiv_i <= 1;
-
-    #1ms;
+    #2ms;
 
     $finish;
 
