@@ -66,8 +66,8 @@ module vco (
       last_clk_tick <= $realtime;
       clk_half_period <= 1us;
     end else begin
-      if (freq_incr_i & ~freq_decr_i) clk_half_period = clk_half_period - 10ps;
-      if (freq_decr_i & ~freq_incr_i) clk_half_period = clk_half_period + 10ps;
+      if (freq_incr_i & ~freq_decr_i) clk_half_period = clk_half_period - 5ps;
+      if (freq_decr_i & ~freq_incr_i) clk_half_period = clk_half_period + 5ps;
       if (clk_half_period < MIN_CLK_HALF_PERIOD) clk_half_period = MIN_CLK_HALF_PERIOD;
       if (clk_half_period > MAX_CLK_HALF_PERIOD) clk_half_period = MAX_CLK_HALF_PERIOD;
       if (($realtime) >= (last_clk_tick + clk_half_period)) begin

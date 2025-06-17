@@ -47,23 +47,23 @@ module pll_tb;
       end
     join_none
 
-    #4us;
+    #1ms;
 
     refdiv_i <= 2;
 
-    #4us;
+    #1ms;
 
     fbdiv_i <= 2;
 
-    #4us;
+    #1ms;
 
     fbdiv_i <= 4;
 
-    #4us;
+    #1ms;
 
     refdiv_i <= 1;
 
-    #4us;
+    #1ms;
 
     $finish;
 
