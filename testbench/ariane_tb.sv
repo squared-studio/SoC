@@ -276,7 +276,7 @@ module ariane_tb;
     end
 
     // Set tohost monitoring for the program
-    if (sym.exists("putchar_stdout")) begin
+    if (sym.exists("tohost")) begin
       $display("\033[0;35mTOHOSTADDR     : 0x%08x\033[0m", sym["tohost"]);
     end else begin
       $fatal(1, "\033[1;31mtohost symbol not found!\033[0m");

@@ -38,6 +38,7 @@ module soc_tb;
 
   string core_test_name [soc_pkg::NUM_CORE];
   logic [63:0] test_symbols[int][string];
+  bit test_passed = 1;
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
   // INSTANCIATIONS
@@ -57,8 +58,10 @@ module soc_tb;
   );
 
   axi_ram #(
-      .MEM_BASE(soc_pkg::RAM_BASE),
-      .MEM_SIZE(29),
+      // .MEM_BASE(soc_pkg::RAM_BASE),
+      .MEM_BASE(0),
+      // .MEM_SIZE(29),
+      .MEM_SIZE(32),
       .req_t   (s_req_t),
       .resp_t  (s_resp_t)
   ) u_axi_ram (
@@ -125,6 +128,179 @@ module soc_tb;
     $fclose(file);
   endfunction
 
+  function automatic bit [63:0] get_gpr(input int core, input [4:0] index);
+    case (core)
+      0:
+      return u_soc.g_cores[0].u_core.issue_stage_i.i_issue_read_operands.i_ariane_regfile.mem[index];
+      1:
+      return u_soc.g_cores[1].u_core.issue_stage_i.i_issue_read_operands.i_ariane_regfile.mem[index];
+      2:
+      return u_soc.g_cores[2].u_core.issue_stage_i.i_issue_read_operands.i_ariane_regfile.mem[index];
+      3:
+      return u_soc.g_cores[3].u_core.issue_stage_i.i_issue_read_operands.i_ariane_regfile.mem[index];
+      default: $fatal(1, "INVALID CORE INDEX %0d", core);
+    endcase
+  endfunction
+
+  function automatic void set_gpr(input int core, input [4:0] index, input bit [63:0] data);
+    case (core)
+      0:
+      if (index != 0)
+        u_soc.g_cores[0].u_core.issue_stage_i.i_issue_read_operands.i_ariane_regfile.mem[index] = data;
+      1:
+      if (index != 0)
+        u_soc.g_cores[1].u_core.issue_stage_i.i_issue_read_operands.i_ariane_regfile.mem[index] = data;
+      2:
+      if (index != 0)
+        u_soc.g_cores[2].u_core.issue_stage_i.i_issue_read_operands.i_ariane_regfile.mem[index] = data;
+      3:
+      if (index != 0)
+        u_soc.g_cores[3].u_core.issue_stage_i.i_issue_read_operands.i_ariane_regfile.mem[index] = data;
+      default: $fatal(1, "INVALID CORE INDEX %0d", core);
+    endcase
+  endfunction
+
+  function automatic bit [63:0] get_fpr(input int core, input [4:0] index);
+    case (core)
+      0:
+      return u_soc.g_cores[0].u_core.issue_stage_i.i_issue_read_operands.float_regfile_gen.i_ariane_fp_regfile.mem[index];
+      1:
+      return u_soc.g_cores[1].u_core.issue_stage_i.i_issue_read_operands.float_regfile_gen.i_ariane_fp_regfile.mem[index];
+      2:
+      return u_soc.g_cores[2].u_core.issue_stage_i.i_issue_read_operands.float_regfile_gen.i_ariane_fp_regfile.mem[index];
+      3:
+      return u_soc.g_cores[3].u_core.issue_stage_i.i_issue_read_operands.float_regfile_gen.i_ariane_fp_regfile.mem[index];
+      default: $fatal(1, "INVALID CORE INDEX %0d", core);
+    endcase
+  endfunction
+
+  function automatic void set_fpr(input int core, input [4:0] index, input bit [63:0] data);
+    case (core)
+      0:
+      if (index != 0)
+        u_soc.g_cores[0].u_core.issue_stage_i.i_issue_read_operands.float_regfile_gen.i_ariane_fp_regfile.mem[index] = data;
+      1:
+      if (index != 0)
+        u_soc.g_cores[1].u_core.issue_stage_i.i_issue_read_operands.float_regfile_gen.i_ariane_fp_regfile.mem[index] = data;
+      2:
+      if (index != 0)
+        u_soc.g_cores[2].u_core.issue_stage_i.i_issue_read_operands.float_regfile_gen.i_ariane_fp_regfile.mem[index] = data;
+      3:
+      if (index != 0)
+        u_soc.g_cores[3].u_core.issue_stage_i.i_issue_read_operands.float_regfile_gen.i_ariane_fp_regfile.mem[index] = data;
+      default: $fatal(1, "INVALID CORE INDEX %0d", core);
+    endcase
+  endfunction
+
+  `define WAIT_EXIT(IDX)                                                                           \
+  begin                                                                                            \
+    logic [7:0][7:0] exit_code;                                                                    \
+                                                                                                   \
+    // STDOUT                                                                                      \
+    if (test_symbols[IDX].exists("putchar_stdout")) begin                                          \
+      string prints;                                                                               \
+      prints = "";                                                                                 \
+      fork                                                                                         \
+        forever begin                                                                              \
+          @(posedge ram_clk_o);                                                                    \
+          if ((unsigned'(u_axi_ram.mem_waddr_o) + unsigned'(u_axi_ram.MEM_BASE))                   \
+            == test_symbols[IDX]["putchar_stdout"]                                                 \
+            && u_axi_ram.mem_wstrb_o[0] == '1 && u_axi_ram.mem_we_o) begin                         \
+            if (u_axi_ram.mem_wdata_o[0] == "\n") begin                                            \
+              $display("\033[1;33mCORE%0dSTDOUT      : %s\033[0m [%0t]", IDX, prints, $realtime);  \
+              prints = "";                                                                         \
+            end else begin                                                                         \
+              $sformat(prints, "%s%c", prints, u_axi_ram.mem_wdata_o[0]);                          \
+            end                                                                                    \
+          end                                                                                      \
+        end                                                                                        \
+      join_none                                                                                    \
+    end                                                                                            \
+                                                                                                   \
+    $display("\033[0;35mCORE%0d_TOHOST     : 0x%08x\033[0m", IDX, test_symbols[IDX]["tohost"]);    \
+                                                                                                   \
+    // CHECK EXIT CODE                                                                             \
+    forever begin                                                                                  \
+      @(posedge ram_clk_o);                                                                        \
+      if ((unsigned'(u_axi_ram.mem_waddr_o) + unsigned'(u_axi_ram.MEM_BASE)) ==                    \
+      test_symbols[IDX]["tohost"] && u_axi_ram.mem_we_o == '1) begin                               \
+        exit_code = '0;                                                                            \
+        foreach (exit_code[i]) begin                                                               \
+          if (u_axi_ram.mem_wstrb_o[i]) begin                                                      \
+            exit_code[i] = u_axi_ram.mem_wdata_o[i];                                               \
+          end                                                                                      \
+        end                                                                                        \
+        break;                                                                                     \
+      end                                                                                          \
+    end                                                                                            \
+    $display("\033[0;35mCORE%0d_EXIT_CODE  : 0x%08x\033[0m", IDX, exit_code);                      \
+    // CHECK GPR FINAL VALUE                                                                       \
+    for (int i = 0; i < 32; i++) begin                                                             \
+      string GPRXX_FINAL_VALUE;                                                                    \
+      $sformat(GPRXX_FINAL_VALUE, "GPR%02d_FINAL_VALUE", i);                                       \
+      if (test_symbols[IDX].exists(GPRXX_FINAL_VALUE)) begin                                       \
+        if (u_axi_ram.read_mem_d(test_symbols[IDX][GPRXX_FINAL_VALUE]) != get_gpr(IDX, i)) begin   \
+          exit_code = 1;                                                                           \
+          $display("\033[1;31mCORE%0d_GPR%02d EXP:0x%016h GOT:0x%016h\033[0m", IDX, i,             \
+                   u_axi_ram.read_mem_d(test_symbols[IDX][GPRXX_FINAL_VALUE]), get_gpr(IDX, i));   \
+        end                                                                                        \
+      end                                                                                          \
+    end                                                                                            \
+                                                                                                   \
+    // CHECK FPR FINAL VALUE                                                                       \
+    for (int i = 0; i < 32; i++) begin                                                             \
+      string FPRXX_FINAL_VALUE;                                                                    \
+      $sformat(FPRXX_FINAL_VALUE, "FPR%02d_FINAL_VALUE", i);                                       \
+      if (test_symbols[IDX].exists(FPRXX_FINAL_VALUE)) begin                                       \
+        if (u_axi_ram.read_mem_d(test_symbols[IDX][FPRXX_FINAL_VALUE]) != get_fpr(IDX, i)) begin   \
+          exit_code = 1;                                                                           \
+          $display("\033[1;31mCORE%0d_FPR%02d EXP:0x%016h GOT:0x%016h\033[0m", IDX, i,             \
+                   u_axi_ram.read_mem_d(test_symbols[IDX][FPRXX_FINAL_VALUE]), get_fpr(IDX, i));   \
+        end                                                                                        \
+      end                                                                                          \
+    end                                                                                            \
+                                                                                                   \
+    // CHECK MEMORY FINAL VALUE                                                                    \
+    for (int i = 0; i < 256; i++) begin                                                            \
+      string MEMXX_FINAL_VALUE;                                                                    \
+      string MEMXX_WRITE_VALUE;                                                                    \
+      $sformat(MEMXX_FINAL_VALUE, "MEM%02d_FINAL_VALUE", i);                                       \
+      $sformat(MEMXX_WRITE_VALUE, "MEM%02d_WRITE_VALUE", i);                                       \
+      if (test_symbols[IDX].exists(                                                                \
+              MEMXX_FINAL_VALUE                                                                    \
+          ) || test_symbols[IDX].exists(                                                           \
+              MEMXX_WRITE_VALUE                                                                    \
+          )) begin                                                                                 \
+        if (!test_symbols[IDX].exists(MEMXX_FINAL_VALUE)) begin                                    \
+          exit_code = 1;                                                                           \
+          $display("\033[1;31mCORE%0d_MEM%02d_FINAL_VALUE symbol not found!\033[0m", IDX, i);      \
+        end                                                                                        \
+        if (!test_symbols[IDX].exists(MEMXX_WRITE_VALUE)) begin                                    \
+          exit_code = 1;                                                                           \
+          $display("\033[1;31mCORE%0d_MEM%02d_WRITE_VALUE symbol not found!\033[0m", IDX, i);      \
+        end                                                                                        \
+        if (u_axi_ram.read_mem_b(                                                                  \
+                test_symbols[IDX][MEMXX_FINAL_VALUE]                                               \
+            ) != u_axi_ram.read_mem_b(                                                             \
+                test_symbols[IDX][MEMXX_WRITE_VALUE]                                               \
+            )) begin                                                                               \
+          exit_code = 1;                                                                           \
+          $display("\033[1;31mCORE%0d_MEM%02d EXP:0x%02h GOT:0x%02h\033[0m", IDX, i,               \
+                   u_axi_ram.read_mem_b(test_symbols[IDX][MEMXX_FINAL_VALUE]),                     \
+                   u_axi_ram.read_mem_b(test_symbols[IDX][MEMXX_WRITE_VALUE]));                    \
+        end                                                                                        \
+      end                                                                                          \
+    end                                                                                            \
+                                                                                                   \
+    if (exit_code == 0) $display("\033[1;32mCORE%0d PASSED\033[0m", IDX);                          \
+    else begin                                                                                     \
+      $display("\033[1;31mCORE%0d FAILED\033[0m", IDX);                                            \
+      test_passed = 0;                                                                             \
+    end                                                                                            \
+                                                                                                   \
+  end                                                                                              \
+ 
+
   //////////////////////////////////////////////////////////////////////////////////////////////////
   // PROCEDURALS
   //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -132,6 +308,11 @@ module soc_tb;
   initial begin
 
     logic [7:0] MEM[longint];
+
+    // Set time format to microseconds
+    $timeformat(-6, 3, "us");
+
+    test_passed = 1;
 
     MEM.delete();
 
@@ -224,7 +405,6 @@ module soc_tb;
       foreach (test_symbols[i]) begin
         if (test_symbols[i].exists("_start")) begin
           $display("\033[0;35mCORE%0d_BOOTADDR   : 0x%08x\033[0m", i, test_symbols[i]["_start"]);
-          $display("\033[0;35mCORE%0d_TOHOST     : 0x%08x\033[0m", i, test_symbols[i]["tohost"]);
           fork
             ext_m_write_64('h10000000 + 8 * i, test_symbols[i]["_start"], resp);
           join_none
@@ -243,7 +423,15 @@ module soc_tb;
       ext_m_write_64('h10000E10, clk_en_vec, resp);
     end
 
-    #50us;
+    fork
+      if (test_symbols[0].exists("tohost")) `WAIT_EXIT(0)
+      if (test_symbols[1].exists("tohost")) `WAIT_EXIT(1)
+      if (test_symbols[2].exists("tohost")) `WAIT_EXIT(2)
+      if (test_symbols[3].exists("tohost")) `WAIT_EXIT(3)
+    join
+
+    if (test_passed) $display("\033[1;32m************** TEST PASSED **************\033[0m");
+    else $display("\033[1;31m************** TEST FAILED **************\033[0m");
 
     $finish;
   end

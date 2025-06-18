@@ -40,7 +40,7 @@ ci_simulate ariane_tb TEST=rv32i/sb.s
 ci_simulate ariane_tb TEST=rv32i/sh.s
 ci_simulate ariane_tb TEST=rv32i/sw.s
 
-ci_simulate soc_tb
+ci_simulate soc_tb T0=generic/stdout.s T1=generic/stdout.s T2=generic/stdout.s T3=generic/stdout.s
 
 ################################################################################
 # COLLECT & PRINT

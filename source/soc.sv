@@ -119,7 +119,7 @@ module soc (
     ariane #(
         .DmBaseAddress(soc_pkg::RAM_BASE),
         .CachedAddrBeg(soc_pkg::RAM_BASE)
-    ) u_core_0 (
+    ) u_core (
         .clk_i(core_clk_vec[core]),
         .rst_ni(core_arst_vec_n[core]),
         .boot_addr_i(boot_addr_vec[core]),

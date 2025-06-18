@@ -38,8 +38,8 @@ package soc_pkg;
   localparam axi_pkg::xbar_cfg_t XbarConfig = '{
       NoSlvPorts : NUM_MASTERS,
       NoMstPorts : NUM_SLAVES,
-      MaxMstTrans: 1,
-      MaxSlvTrans: 1,
+      MaxMstTrans: 2,
+      MaxSlvTrans: 2,
       FallThrough: 0,
       LatencyMode: axi_pkg::CUT_ALL_PORTS,
       PipelineStages: 2,
