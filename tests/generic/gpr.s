@@ -35,12 +35,17 @@ GPR31_FINAL_VALUE: .dword -31
 
 .section .data
 .align 3
-.globl tohost
+.global tohost
 tohost: .dword 0
+
+.section .data
+.align 3
+.global fromhost
+fromhost: .dword 0
 
 .align 3
 .section .text
-.globl _start
+.global _start
 _start:
     addi  x0,  x0, -1
     addi  x1,  x0, -1
@@ -72,11 +77,12 @@ _start:
     addi x27, x26, -1
     addi x28, x27, -1
     addi x29, x28, -1
-    addi x30, x29, -1
 
-    la x31, tohost
     fence
-    sw x0, 0(x31)
+    li x30, 1
+    la x31, tohost
+    sw x30, 0(x31)
+    addi x30, x29, -1
     addi x31, x30, -1
     fence
 

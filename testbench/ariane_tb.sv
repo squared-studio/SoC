@@ -148,8 +148,7 @@ module ariane_tb;
   endfunction
 
   function automatic void set_gpr(input [4:0] index, input bit [63:0] data);
-    if (index != 0)
-      u_core.issue_stage_i.i_issue_read_operands.i_ariane_regfile.mem[index] = data;
+    if (index != 0) u_core.issue_stage_i.i_issue_read_operands.i_ariane_regfile.mem[index] = data;
   endfunction
 
   function automatic bit [63:0] get_fpr(input [4:0] index);
@@ -175,7 +174,10 @@ module ariane_tb;
             exit_code[i] = u_axi_ram.mem_wdata_o[i];
           end
         end
-        break;
+        if (exit_code[0][0]) begin
+          exit_code = exit_code >> 1;
+          break;
+        end
       end
     end
     $display("\033[0;35mEXIT CODE      : 0x%08x\033[0m", exit_code);

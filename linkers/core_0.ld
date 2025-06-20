@@ -3,7 +3,7 @@ ENTRY(_start)
 MEMORY
 {
   RAM (rwx) : ORIGIN = 0x40000000, LENGTH = 128M
-  PERIPHERALS (rwx) : ORIGIN = 0x20000000, LENGTH = 0x2000
+  PERIPHERALS (rwx) : ORIGIN = 0x20000000, LENGTH = 0x4000
 }
 
 SECTIONS
@@ -16,7 +16,14 @@ SECTIONS
     QUAD(0);
   } > PERIPHERALS
 
-  .putchar_stdout_section 0x20001000 :
+  .fromhost_section 0x20001000 :
+  {
+    . = ALIGN(8);
+    fromhost = .;
+    QUAD(0);
+  } > PERIPHERALS
+
+  .putchar_stdout_section 0x20002000 (NOLOAD) :
   {
     . = ALIGN(8);
     putchar_stdout = .;

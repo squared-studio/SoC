@@ -1,11 +1,16 @@
 .section .data
 .align 3
-.globl tohost
+.global tohost
 tohost: .dword 0
+
+.section .data
+.align 3
+.global fromhost
+fromhost: .dword 0
 
 .section .text
 .align 3
-.globl _start
+.global _start
 _start:
     call main
 
@@ -13,6 +18,8 @@ _start:
 .align 3
 _exit:
     fence
+    slli a0, a0, 1
+    ori  a0, a0, 1
     la t0, tohost
     sw a0, 0(t0)
     fence

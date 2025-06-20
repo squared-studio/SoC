@@ -1,7 +1,12 @@
 .section .data
 .align 3
-.globl tohost
+.global tohost
 tohost: .dword 0
+
+.section .data
+.align 3
+.global fromhost
+fromhost: .dword 0
 
 .section .rodata
 .align 3
@@ -42,7 +47,7 @@ MEM14_WRITE_VALUE: .byte 0xAA
 MEM15_WRITE_VALUE: .byte 0xAA
 
 .section .text
-.globl _start
+.global _start
 _start:
     la t0, MEM08_WRITE_VALUE
 
@@ -52,9 +57,8 @@ _start:
     li t1, -1
     sd t1, -8(t0)
 
-    li a0, 0
-
     fence
+    li a0, 1
     la t0, tohost
     sw a0, 0(t0)
     fence

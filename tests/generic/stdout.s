@@ -1,16 +1,21 @@
 .section .data
 .align 3
-.globl tohost
+.global tohost
 tohost: .dword 0
 
 .section .data
 .align 3
-.globl putchar_stdout
+.global fromhost
+fromhost: .dword 0
+
+.section .data
+.align 3
+.global putchar_stdout
 putchar_stdout: .dword 0
 
 .section .text
 .align 3
-.globl _start
+.global _start
 _start:
     la t0, putchar_stdout
     la a0, hello_string
@@ -26,8 +31,8 @@ print_loop:
     j print_loop
 
 end_program:
-    li a0, 0
     fence
+    li a0, 1
     la t0, tohost
     sw a0, 0(t0)
     fence

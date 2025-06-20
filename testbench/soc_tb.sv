@@ -213,7 +213,10 @@ module soc_tb;
             exit_code[i] = u_axi_ram.mem_wdata_o[i];
           end
         end
-        break;
+        if (exit_code[0][0]) begin
+          exit_code = exit_code >> 1;
+          break;
+        end
       end
     end
     $display("\033[0;35mCORE%0d_EXIT_CODE  : 0x%08x\033[0m", idx, exit_code);
@@ -417,6 +420,11 @@ module soc_tb;
     else $display("\033[1;31m************** TEST FAILED **************\033[0m");
 
     $finish;
+  end
+
+  initial begin
+    #10ms;
+    $fatal(1, "Simulation timeout after 1ms");
   end
 
 endmodule
