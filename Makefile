@@ -19,7 +19,7 @@ GREP_EW := grep -E "WARNING:|ERROR:|" --color=auto
 
 TEST?=default
 
-TEST_REPO := tests
+TEST_REPO := risc-v-tests
 
 HARTID := $(shell shuf -i 0-3 -n 1)
 
