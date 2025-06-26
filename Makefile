@@ -110,7 +110,7 @@ ENV_BUILD:
 	@cd build; xvlog -sv -f flist --nolog $(XVLOG_DEFS) | $(GREP_EW)
 	@echo -e "\033[3;35mCompiled\033[0m"
 	@echo -e "\033[3;35mElaborating $(TOP)...\033[0m"
-	@cd build; xelab $(TOP) --O0 --incr --nolog --timescale 1ns/1ps --debug wave | $(GREP_EW)
+	@cd build; xelab $(TOP) --O0 --incr --timescale 1ns/1ps --debug wave --log ../log/elab_$(TOP).txt | $(GREP_EW)
 	@echo -e "\033[3;35mElaborated $(TOP)\033[0m"
 	@sha256sum.exe $$(find include/ -type f) $$(find package/ -type f) $$(find source/ -type f) $$(find testbench/ -type f) > build/build_$(TOP)
 

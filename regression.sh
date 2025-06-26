@@ -30,15 +30,19 @@ echo -e "\033[1;32mDone!\033[0m ($time_diff seconds)"
 # SIMULATE
 ################################################################################
 
-ci_simulate clk_div_tb
+ci_simulate soc_ctrl_csr_tb
 
 ci_simulate ariane_tb TEST=generic/gpr.s
 ci_simulate ariane_tb TEST=generic/stdout.s
 
+ci_simulate ariane_tb TEST=rv32i/add.s
 ci_simulate ariane_tb TEST=rv32i/addi.s
+ci_simulate ariane_tb TEST=rv32i/auipc.s
+ci_simulate ariane_tb TEST=rv32i/lui.s
 ci_simulate ariane_tb TEST=rv32i/sb.s
 ci_simulate ariane_tb TEST=rv32i/sh.s
 ci_simulate ariane_tb TEST=rv32i/sw.s
+ci_simulate ariane_tb TEST=rv64i/sd.s
 
 ci_simulate soc_tb T0=generic/stdout.s T1=generic/stdout.s T2=generic/stdout.s T3=generic/stdout.s
 

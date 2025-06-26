@@ -41,7 +41,7 @@ module soc_ctrl_csr_tb;
   logic                                                  ram_pll_locked_i;
 
   logic                                                  glob_arst_o;
-  logic    [$clog2(NUM_CORE)-1:0]                        sys_pll_select_i;
+  logic    [$clog2(NUM_CORE+1)-1:0]                      sys_pll_select_i;
 
   //////////////////////////////////////////////////////////////////////////////////////////////////
   // INSTANCIATIONS
