@@ -108,3 +108,5 @@ grep -s -r "WARNING:" ./log | sed "s/.*\.log://g" | wc -l
 echo -n "ERROR   : "
 grep -s -r "ERROR:" ./log | sed "s/.*\.log://g" | wc -l
 echo -e ""
+
+mv temp_ci_issues ./log/ci_issues.txt
