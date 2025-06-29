@@ -100,7 +100,7 @@ match_sha:
 	@diff build/build_$(TOP)_new build/build_$(TOP) || make -s ENV_BUILD TOP=$(TOP)
 
 .PHONY: ENV_BUILD
-ENV_BUILD:
+ENV_BUILD: log
 	@make -s clean
 	@echo -e "\033[3;35mCompiling...\033[0m"
 	@echo "-i ${ROOT_DIR}/include" > build/flist
@@ -163,16 +163,13 @@ print_logo:
 	@echo "                           |____/ \___/ \____|                           ";
 	@echo "                                                                         ";
 
-# Define the GCC command for RISC-V
-RV64G_GCC := riscv64-unknown-elf-gcc -march=rv64g -nostdlib -nostartfiles
-
 .PHONY: test
 test: build
 	@if [ -z ${TEST} ]; then echo -e "\033[1;31mTEST is not set\033[0m"; exit 1; fi
 	@if [ ! -f ${TEST_REPO}/$(TEST) ]; then echo -e "\033[1;31m${TEST_REPO}/$(TEST) does not exist\033[0m"; exit 1; fi
 	@echo -e "\033[1;33mLinker: core_${HARTID}.ld with ${TEST}\033[0m"
-	@$(RV64G_GCC) -o build/prog_${HARTID}.elf ${TEST_REPO}/$(TEST) -T linkers/core_$(HARTID).ld
-	@riscv64-unknown-elf-objcopy -O verilog build/prog_${HARTID}.elf build/prog_${HARTID}.hex
-	@riscv64-unknown-elf-nm build/prog_${HARTID}.elf > build/prog_${HARTID}.sym
-	@riscv64-unknown-elf-objdump -d build/prog_${HARTID}.elf > build/prog_${HARTID}.dump
+	@${RISCV64_GCC} -march=rv64g -nostdlib -nostartfiles -o build/prog_${HARTID}.elf ${TEST_REPO}/$(TEST) -T linkers/core_$(HARTID).ld
+	@${RISCV64_OBJCOPY} -O verilog build/prog_${HARTID}.elf build/prog_${HARTID}.hex
+	@${RISCV64_NM} build/prog_${HARTID}.elf > build/prog_${HARTID}.sym
+	@${RISCV64_OBJDUMP} -d build/prog_${HARTID}.elf > build/prog_${HARTID}.dump
 
