@@ -168,8 +168,8 @@ test: build
 	@if [ -z ${TEST} ]; then echo -e "\033[1;31mTEST is not set\033[0m"; exit 1; fi
 	@if [ ! -f ${TEST_REPO}/$(TEST) ]; then echo -e "\033[1;31m${TEST_REPO}/$(TEST) does not exist\033[0m"; exit 1; fi
 	@echo -e "\033[1;33mLinker: core_${HARTID}.ld with ${TEST}\033[0m"
-	@${RISCV64_GCC} -march=rv64g -nostdlib -nostartfiles -o build/prog_${HARTID}.elf ${TEST_REPO}/$(TEST) -T linkers/core_$(HARTID).ld
+	@${RISCV64_GCC} -march=rv64g -nostdlib -nostartfiles -o build/prog_${HARTID}.elf ${TEST_REPO}/$(TEST) -I ${TEST_REPO}/include -T linkers/core_$(HARTID).ld
 	@${RISCV64_OBJCOPY} -O verilog build/prog_${HARTID}.elf build/prog_${HARTID}.hex
 	@${RISCV64_NM} build/prog_${HARTID}.elf > build/prog_${HARTID}.sym
 	@${RISCV64_OBJDUMP} -d build/prog_${HARTID}.elf > build/prog_${HARTID}.dump
-
+	@cp ${TEST_REPO}/test_data/${TEST}/rv64g build/prog_${HARTID}.test_data

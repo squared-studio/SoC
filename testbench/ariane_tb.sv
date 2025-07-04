@@ -30,6 +30,8 @@ module ariane_tb;
   // Declare dictionary of symbols
   longint sym[string];
 
+  bit [7:0] ref_data[longint];
+
   //////////////////////////////////////////////////////////////////////////////////////////////////
   // DUT Instantiation
   //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -71,7 +73,13 @@ module ariane_tb;
     bit [7:0] mem[longint];
     $readmemh(filename, mem);
     foreach (mem[i]) u_axi_ram.write_mem_b(i, mem[i]);
-    // foreach (mem[i]) $display("MEM[0x%0x]:0x%x", i, u_axi_ram.read_mem_b(i));
+  endfunction
+
+  // Function to load reference data from a file
+  function automatic void load_ref_data(string filename);
+    bit [7:0] mem[longint];
+    $readmemh(filename, mem);
+    foreach (mem[i]) ref_data[i+sym["TEST_DATA_BEGIN"]] = mem[i];
   endfunction
 
   // Function to load symbols from a file
@@ -182,58 +190,13 @@ module ariane_tb;
     end
     $display("\033[0;35mEXIT CODE      : 0x%08x\033[0m", exit_code);
 
-    // CHECK GPR FINAL VALUE
-    for (int i = 0; i < 32; i++) begin
-      string GPRXX_FINAL_VALUE;
-      $sformat(GPRXX_FINAL_VALUE, "GPR%02d_FINAL_VALUE", i);
-      if (sym.exists(GPRXX_FINAL_VALUE)) begin
-        if (u_axi_ram.read_mem_d(sym[GPRXX_FINAL_VALUE]) != get_gpr(i)) begin
-          exit_code = 1;
-          $display("\033[1;31mGPR%02d EXP:0x%016h GOT:0x%016h\033[0m", i, u_axi_ram.read_mem_d(
-                   sym[GPRXX_FINAL_VALUE]), get_gpr(i));
-        end
+    foreach (ref_data[i])
+      if (ref_data[i] != u_axi_ram.read_mem_b(i)) begin
+        exit_code++;
+        $display("\033[0;35mEXIT CODE      : 0x%08x\033[0m", exit_code);
+        $display("\033[1;31mMEM[0x%08x]: EXP:0x%02x GOT:0x%02x\033[0m", i, ref_data[i],
+                 u_axi_ram.read_mem_b(i));
       end
-    end
-
-    // CHECK FPR FINAL VALUE
-    for (int i = 0; i < 32; i++) begin
-      string FPRXX_FINAL_VALUE;
-      $sformat(FPRXX_FINAL_VALUE, "FPR%02d_FINAL_VALUE", i);
-      if (sym.exists(FPRXX_FINAL_VALUE)) begin
-        if (u_axi_ram.read_mem_d(sym[FPRXX_FINAL_VALUE]) != get_fpr(i)) begin
-          exit_code = 1;
-          $display("\033[1;31mFPR%02d EXP:0x%016h GOT:0x%016h\033[0m", i, u_axi_ram.read_mem_d(
-                   sym[FPRXX_FINAL_VALUE]), get_fpr(i));
-        end
-      end
-    end
-
-    // CHECK MEMORY FINAL VALUE
-    for (int i = 0; i < 256; i++) begin
-      string MEMXX_FINAL_VALUE;
-      string MEMXX_WRITE_VALUE;
-      $sformat(MEMXX_FINAL_VALUE, "MEM%02d_FINAL_VALUE", i);
-      $sformat(MEMXX_WRITE_VALUE, "MEM%02d_WRITE_VALUE", i);
-      if (sym.exists(MEMXX_FINAL_VALUE) || sym.exists(MEMXX_WRITE_VALUE)) begin
-        if (!sym.exists(MEMXX_FINAL_VALUE)) begin
-          exit_code = 1;
-          $display("\033[1;31mMEM%02d_FINAL_VALUE symbol not found!\033[0m", i);
-        end
-        if (!sym.exists(MEMXX_WRITE_VALUE)) begin
-          exit_code = 1;
-          $display("\033[1;31mMEM%02d_WRITE_VALUE symbol not found!\033[0m", i);
-        end
-        if (u_axi_ram.read_mem_b(
-                sym[MEMXX_FINAL_VALUE]
-            ) != u_axi_ram.read_mem_b(
-                sym[MEMXX_WRITE_VALUE]
-            )) begin
-          exit_code = 1;
-          $display("\033[1;31mMEM%02d EXP:0x%02h GOT:0x%02h\033[0m", i, u_axi_ram.read_mem_b(
-                   sym[MEMXX_FINAL_VALUE]), u_axi_ram.read_mem_b(sym[MEMXX_WRITE_VALUE]));
-        end
-      end
-    end
 
     if (exit_code == 0) $display("\033[1;32m************** TEST PASSED **************\033[0m");
     else $display("\033[1;31m************** TEST FAILED **************\033[0m");
@@ -268,6 +231,7 @@ module ariane_tb;
     // Load simulation memory and symbols
     load_memory($sformatf("prog_%0d.hex", hart_id));
     load_symbols($sformatf("prog_%0d.sym", hart_id));
+    load_ref_data($sformatf("prog_%0d.test_data", hart_id));
 
     // Set boot address to the start of the program
     if (sym.exists("putchar_stdout")) begin
@@ -288,6 +252,18 @@ module ariane_tb;
     if (sym.exists("putchar_stdout")) begin
       $display("\033[0;35mPUTCHAR_STDOUT : 0x%08x\033[0m", sym["putchar_stdout"]);
       monitor_prints();
+    end
+
+    // Set tohost monitoring for the program
+    if (sym.exists("TEST_DATA_BEGIN") && sym.exists("TEST_DATA_END")) begin
+      $display("\033[0;35mTEST_DATA      : 0x%08x-0x%08x\033[0m", sym["TEST_DATA_BEGIN"],
+               sym["TEST_DATA_END"]);
+    end else begin
+      if (sym.exists("TEST_DATA_BEGIN")) begin
+        $fatal(1, "\033[1;31mTEST_DATA_END symbol not found!\033[0m");
+      end else begin
+        $fatal(1, "\033[1;31mTEST_DATA_BEGIN symbol not found!\033[0m");
+      end
     end
 
     // Apply reset and start clock
