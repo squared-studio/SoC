@@ -71,6 +71,7 @@ module ariane_tb;
   // Function to load memory contents from a file
   function automatic void load_memory(string filename);
     bit [7:0] mem[longint];
+    mem.delete();
     $readmemh(filename, mem);
     foreach (mem[i]) u_axi_ram.write_mem_b(i, mem[i]);
   endfunction
@@ -78,6 +79,7 @@ module ariane_tb;
   // Function to load reference data from a file
   function automatic void load_ref_data(string filename);
     bit [7:0] mem[longint];
+    mem.delete();
     $readmemh(filename, mem);
     foreach (mem[i]) ref_data[i+sym["TEST_DATA_BEGIN"]] = mem[i];
   endfunction
@@ -190,13 +192,14 @@ module ariane_tb;
     end
     $display("\033[0;35mEXIT CODE      : 0x%08x\033[0m", exit_code);
 
-    foreach (ref_data[i])
+    foreach (ref_data[i]) begin
       if (ref_data[i] != u_axi_ram.read_mem_b(i)) begin
-        exit_code++;
+        exit_code = 1;
         $display("\033[0;35mEXIT CODE      : 0x%08x\033[0m", exit_code);
         $display("\033[1;31mMEM[0x%08x]: EXP:0x%02x GOT:0x%02x\033[0m", i, ref_data[i],
                  u_axi_ram.read_mem_b(i));
       end
+    end
 
     if (exit_code == 0) $display("\033[1;32m************** TEST PASSED **************\033[0m");
     else $display("\033[1;31m************** TEST FAILED **************\033[0m");
