@@ -1,5 +1,11 @@
 ENTRY(_start)
 
+PHDRS
+{
+  text PT_LOAD FLAGS(5);
+  data PT_LOAD FLAGS(6);
+}
+
 MEMORY
 {
   RAM (rwx) : ORIGIN = 0x40060000, LENGTH = 128M
@@ -14,21 +20,21 @@ SECTIONS
     . = ALIGN(8);
     tohost = .;
     QUAD(0);
-  } > PERIPHERALS
+  } > PERIPHERALS : data
 
   .fromhost_section 0x20001018 :
   {
     . = ALIGN(8);
     fromhost = .;
     QUAD(0);
-  } > PERIPHERALS
+  } > PERIPHERALS : data
 
   .putchar_stdout_section 0x20002018 (NOLOAD) :
   {
     . = ALIGN(8);
     putchar_stdout = .;
     QUAD(0);
-  } > PERIPHERALS
+  } > PERIPHERALS : data
 
   . = ORIGIN(RAM);
 
@@ -37,26 +43,23 @@ SECTIONS
     _start = .;
     *(.text)
     *(.text.*)
-  } > RAM
-
-  .rodata :
-  {
+    . = ALIGN(8);
     *(.rodata)
     *(.rodata.*)
-  } > RAM
+  } > RAM : text
 
   .data :
   {
     *(.data)
     *(.data.*)
-  } > RAM
+  } > RAM : data
 
   .bss :
   {
     *(.bss)
     *(.bss.*)
     *(COMMON)
-  } > RAM
+  } > RAM : data
 
   _end = ALIGN(8);
 }
