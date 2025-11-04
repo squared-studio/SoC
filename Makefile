@@ -26,6 +26,15 @@ HARTID := $(shell shuf -i 0-3 -n 1)
 DEBUG ?= 0
 
 ####################################################################################################
+# TOOL FIX
+####################################################################################################
+
+RISCV64_GCC ?= riscv64-unknown-elf-gcc
+RISCV64_OBJCOPY ?= riscv64-unknown-elf-objcopy
+RISCV64_NM ?= riscv64-unknown-elf-nm
+RISCV64_OBJDUMP ?= riscv64-unknown-elf-objdump
+
+####################################################################################################
 # PACKAGE LISTS
 ####################################################################################################
 
@@ -96,7 +105,7 @@ build/build_$(TOP):
 
 .PHONY: match_sha
 match_sha:
-	@sha256sum.exe $$(find include/ -type f) $$(find package/ -type f) $$(find source/ -type f) $$(find testbench/ -type f) > build/build_$(TOP)_new
+	@sha256sum $$(find include/ -type f) $$(find package/ -type f) $$(find source/ -type f) $$(find testbench/ -type f) > build/build_$(TOP)_new
 	@diff build/build_$(TOP)_new build/build_$(TOP) || make -s ENV_BUILD TOP=$(TOP)
 
 .PHONY: ENV_BUILD
@@ -112,7 +121,7 @@ ENV_BUILD: log
 	@echo -e "\033[3;35mElaborating $(TOP)...\033[0m"
 	@cd build; xelab $(TOP) --O0 --incr --timescale 1ns/1ps --debug wave --log ../log/elab_$(TOP).txt | $(GREP_EW)
 	@echo -e "\033[3;35mElaborated $(TOP)\033[0m"
-	@sha256sum.exe $$(find include/ -type f) $$(find package/ -type f) $$(find source/ -type f) $$(find testbench/ -type f) > build/build_$(TOP)
+	@sha256sum $$(find include/ -type f) $$(find package/ -type f) $$(find source/ -type f) $$(find testbench/ -type f) > build/build_$(TOP)
 
 .PHONY: common_sim_checks
 common_sim_checks: log
