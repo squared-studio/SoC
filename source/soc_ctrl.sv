@@ -94,8 +94,8 @@ module soc_ctrl #(
     ) u_pll_core (
         .arst_ni(core_arst_vec_no[core]),
         .clk_ref_i(xtal_i),
-        .refdiv_i(5'd16),
-        .fbdiv_i(core_pll_fb_div_vec_o[core]),
+        .ref_div_i(5'd16),
+        .fb_div_i(core_pll_fb_div_vec_o[core]),
         .clk_o(core_clk_vec_pll[core]),
         .locked_o(core_pll_locked[core])
     );
@@ -125,8 +125,8 @@ module soc_ctrl #(
   ) u_pll_ram (
       .arst_ni(ram_arst_no),
       .clk_ref_i(xtal_i),
-      .refdiv_i(5'd16),
-      .fbdiv_i(ram_pll_fb_div_o),
+      .ref_div_i(5'd16),
+      .fb_div_i(ram_pll_fb_div_o),
       .clk_o(ram_clk_pll),
       .locked_o(ram_pll_locked)
   );
@@ -165,62 +165,62 @@ module soc_ctrl #(
     end
   end
 
-/////////////////// FILTERED CLOCKS ONLY //////////////
-//                                                   //
-//   CORE_0                                          //
-//         \                                         //
-//          CLOCK_LINE_0                             //
-//         /            \                            //
-//   CORE_1              \                           //
-//                        \                          //
-//                         CLOCK_LINE_2              //
-//                        /            \             //
-//   CORE_2              /              \            //
-//         \            /                \           //
-//          CLOCK_LINE_1                  \          //
-//         /                               SYS_CLK   //
-//   CORE_3                                /         //
-//                                        /          //
-//                                       /           //
-//                                      /            //
-//                                   RAM             //
-//                                                   //
-///////////////////////////////////////////////////////
+  /////////////////// FILTERED CLOCKS ONLY //////////////
+  //                                                   //
+  //   CORE_0                                          //
+  //         \                                         //
+  //          CLOCK_LINE_0                             //
+  //         /            \                            //
+  //   CORE_1              \                           //
+  //                        \                          //
+  //                         CLOCK_LINE_2              //
+  //                        /            \             //
+  //   CORE_2              /              \            //
+  //         \            /                \           //
+  //          CLOCK_LINE_1                  \          //
+  //         /                               SYS_CLK   //
+  //   CORE_3                                /         //
+  //                                        /          //
+  //                                       /           //
+  //                                      /            //
+  //                                   RAM             //
+  //                                                   //
+  ///////////////////////////////////////////////////////
 
   logic clk_l0;
   logic clk_l1;
   logic clk_l2;
 
   clk_mux cl_0 (
-    .arst_ni(glob_arst_no),
-    .sel_i(sys_pll_select[0]),
-    .clk0_i(filtered_core_clk_vec_pll[0]),
-    .clk1_i(filtered_core_clk_vec_pll[1]),
-    .clk_o(clk_l0)
+      .arst_ni(glob_arst_no),
+      .sel_i  (sys_pll_select[0]),
+      .clk0_i (filtered_core_clk_vec_pll[0]),
+      .clk1_i (filtered_core_clk_vec_pll[1]),
+      .clk_o  (clk_l0)
   );
 
   clk_mux cl_1 (
-    .arst_ni(glob_arst_no),
-    .sel_i(sys_pll_select[0]),
-    .clk0_i(filtered_core_clk_vec_pll[2]),
-    .clk1_i(filtered_core_clk_vec_pll[3]),
-    .clk_o(clk_l1)
+      .arst_ni(glob_arst_no),
+      .sel_i  (sys_pll_select[0]),
+      .clk0_i (filtered_core_clk_vec_pll[2]),
+      .clk1_i (filtered_core_clk_vec_pll[3]),
+      .clk_o  (clk_l1)
   );
 
   clk_mux cl_2 (
-    .arst_ni(glob_arst_no),
-    .sel_i(sys_pll_select[1]),
-    .clk0_i(clk_l0),
-    .clk1_i(clk_l1),
-    .clk_o(clk_l2)
+      .arst_ni(glob_arst_no),
+      .sel_i  (sys_pll_select[1]),
+      .clk0_i (clk_l0),
+      .clk1_i (clk_l1),
+      .clk_o  (clk_l2)
   );
 
   clk_mux cl_f (
-    .arst_ni(glob_arst_no),
-    .sel_i(sys_pll_select[2]),
-    .clk0_i(clk_l2),
-    .clk1_i(filtered_ram_clk_pll),
-    .clk_o(sys_clk_o)
+      .arst_ni(glob_arst_no),
+      .sel_i  (sys_pll_select[2]),
+      .clk0_i (clk_l2),
+      .clk1_i (filtered_ram_clk_pll),
+      .clk_o  (sys_clk_o)
   );
 
 endmodule

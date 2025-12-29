@@ -4,8 +4,8 @@ module pll #(
 ) (
     input  logic                     arst_ni,
     input  logic                     clk_ref_i,
-    input  logic [REF_DEV_WIDTH-1:0] refdiv_i,
-    input  logic [ FB_DIV_WIDTH-1:0] fbdiv_i,
+    input  logic [REF_DEV_WIDTH-1:0] ref_div_i,
+    input  logic [ FB_DIV_WIDTH-1:0] fb_div_i,
     output logic                     clk_o,
     output logic                     locked_o
 );
@@ -26,12 +26,12 @@ module pll #(
       refdiv_q <= '0;
       fbdiv_q  <= '0;
     end else begin
-      refdiv_q <= refdiv_i;
-      fbdiv_q  <= fbdiv_i;
+      refdiv_q <= ref_div_i;
+      fbdiv_q  <= fb_div_i;
     end
   end
 
-  always_comb stable = arst_ni & (refdiv_q == refdiv_i) & (fbdiv_q == fbdiv_i);
+  always_comb stable = arst_ni & (refdiv_q == ref_div_i) & (fbdiv_q == fb_div_i);
 
   always_ff @(posedge clk_o or negedge stable) begin
     if (~stable) begin
@@ -50,8 +50,8 @@ module pll #(
     end else begin
       realtime target_timeperiod;
       target_timeperiod = $realtime - ref_clk_tick;
-      if (refdiv_i) target_timeperiod = target_timeperiod * unsigned'(refdiv_i);
-      if (fbdiv_i) target_timeperiod = target_timeperiod / unsigned'(fbdiv_i);
+      if (ref_div_i) target_timeperiod = target_timeperiod * unsigned'(ref_div_i);
+      if (fb_div_i) target_timeperiod = target_timeperiod / unsigned'(fb_div_i);
       if (target_timeperiod > 500us) target_timeperiod = 500us;
       if (target_timeperiod < 50ps) target_timeperiod = 50ps;
       if (timeperiod < target_timeperiod)
